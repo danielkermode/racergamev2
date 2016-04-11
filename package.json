@@ -1,0 +1,11 @@
+{
+  "name": "racergame",
+  "version": "1.0.0",
+  "description": "racergame",
+  "main": "entry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "daniel kermode",
+  "license": "MIT"
+}
