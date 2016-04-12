@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Lobby } from './components/Lobby';
 import { Help } from './components/Help';
+import { GameRoom } from './components/GameRoom';
 
 export class App extends Component {
   static propTypes = {
@@ -11,7 +12,8 @@ export class App extends Component {
     super(props);
     this.state = {
       username: '',
-      inLobby: false
+      inLobby: false,
+      inGame: false
     };
   }
 
@@ -29,20 +31,23 @@ export class App extends Component {
   goToLobby = () => {
     if(this.state.username) {
       this.props.socket.emit('requestUsers', this.state.username);
-      this.setState({ inLobby: true })
+      this.setState({ inLobby: true });
     }
   };
 
   acceptChallenge = () => {
-    this.props.socket.emit('meetChallenge', { me: this.props.username, answer: 'accept', name: this.props.challenged });
+    this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'accept', challenger: this.props.challenged });
+    this.setState({ inLobby: false, inGame: true });
+    this.props.socket.emit('requestRoom', { challenger: this.props.challenged, challenged: this.props.username });
   };
 
   declineChallenge = () => {
-    this.props.socket.emit('meetChallenge', { me: this.props.username, answer: 'decline', name: this.props.challenged });
+    this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'decline', challenger: this.props.challenged });
   };
 
   playWithSelf = () => {
-    this.props.socket.emit('playWithSelf', { me: this.props.username });
+    this.props.socket.emit('requestRoom', { challenger: this.props.username, challenged: this.props.username });
+    this.setState({ inLobby: false, inGame: true });
   };
 
   render() {
@@ -92,21 +97,27 @@ export class App extends Component {
       }
 
       {/* INITIAL FORM LOGIN */
-      !this.state.inLobby?
+      !this.state.inLobby && !this.state.inGame?
       <div>
         <br/>
         <input onKeyDown={this.onEnter} onChange={this.handleChange} type="text" placeholder="Enter your name" />
         <button onClick={this.goToLobby}>
-         Login
+         Go
         </button>
       </div> :
 
       /* LOBBY WHEN NOT CHALLENGED AND LOGGED IN */
-      !this.props.challenged &&
+      !this.props.challenged && !this.state.inGame &&
       <div>
         <Lobby socket={this.props.socket} username={this.props.username} names={this.props.names}
         challengeResponse={this.props.challengeResponse}/>
       </div>
+      }
+      {/* IN GAME, SO NOT IN LOBBY AND NOT CHALLENGED */
+        !this.props.challenged && !this.state.inLobby && this.state.inGame &&
+        <div>
+          <GameRoom gameRoom={this.props.gameRoom} socket={this.props.socket}/>
+        </div>
       }
     </div>
     );

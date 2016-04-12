@@ -15,13 +15,16 @@ export class Lobby extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.challengeResponse) {
+      if(nextProps.challengeResponse === 'accept') {
+        this.props.socket.emit('requestRoom', { challenger: this.props.username, challenged: this.state.challenging });
+      }
       this.setState({ challenging: false, index: 0 });
     }
   }
 
   challenge = (index) => {
     this.props.socket.emit('challenge', {
-      otherId: this.props.names[index].id,
+      challenged: this.props.names[index].name,
       challenger: this.props.username
     });
     this.props.names[index].name !== this.props.username &&
@@ -30,7 +33,7 @@ export class Lobby extends Component {
 
   cancelChallenge = (index) => {
     this.props.socket.emit('challenge', {
-      otherId: this.props.names[index].id,
+      challenged: this.props.names[index].name,
       challenger: undefined
     });
     this.setState({ challenging: false, index: 0 });
