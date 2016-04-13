@@ -29737,7 +29737,7 @@
 	            _react2.default.createElement(
 	              'p',
 	              null,
-	              'You can also play in single player mode if you\'re that way inclined (or no one else is online).'
+	              'You can also play in single player mode by challenging yourself if you\'re that way inclined (or no one else is online).'
 	            ),
 	            _react2.default.createElement(
 	              'p',
@@ -29747,7 +29747,7 @@
 	            _react2.default.createElement(
 	              'p',
 	              null,
-	              'May the quickest typer win!'
+	              'May the quickest typer win.'
 	            ),
 	            _react2.default.createElement(
 	              'p',

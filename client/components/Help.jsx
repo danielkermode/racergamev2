@@ -46,8 +46,8 @@ export class Help extends Component {
             battle of reactions to see who can make it to the finish (the right hand side of the page).
             A letter of the alphabet will be shown, and whoever clicks it first moves forward. This
             will prompt a new letter to both players, and so on. </p>
-            <p>You can also play in single player mode if you're that way inclined (or no one else
-            is online).</p>
+            <p>You can also play in single player mode by challenging yourself if you're that way
+            inclined (or no one else is online).</p>
             <p>If you'd like to see how it works with two players, open up two tabs and pit the
             two players against each other (each tab can be a new session). Or play with a friend
             on another computer of course!</p>
