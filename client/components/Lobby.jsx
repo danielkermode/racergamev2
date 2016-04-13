@@ -1,10 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { loader } from './Loader';
+import NotificationSystem from 'react-notification-system';
 
 export class Lobby extends Component {
   static propTypes = {
     names: PropTypes.array
   };
+
+  _notificationSystem = null;
 
   constructor(props) {
     super(props);
@@ -14,11 +17,21 @@ export class Lobby extends Component {
     };
   }
 
+  componentDidMount() {
+    this._notificationSystem = this.refs.notificationSystem;
+  }
+
   componentWillReceiveProps(nextProps) {
-    //challenge has been accepted (by other player)
+    //challenge has been declined (by other player)
     if (nextProps.challengeResponse) {
       if(nextProps.challengeResponse.answer === 'decline') {
         this.setState({ challenging: false, index: 0 });
+        this._notificationSystem.addNotification({
+          title: 'Hey',
+          message: 'Your response got declined. Sorry.',
+          level: 'info',
+        });
+        window.__challengeResponse__ = undefined;
       }
     }
   }
@@ -43,24 +56,30 @@ export class Lobby extends Component {
   render() {
     return (
       <div>
+      <NotificationSystem ref="notificationSystem" />
       <h3>Lobby</h3>
       {this.state.challenging?
         <div>
           You are challenging {this.state.challenging}. Awaiting response...
           <br/>
           {loader()}
-          <button onClick={this.cancelChallenge.bind(this, this.state.index)}>Cancel challenge</button>
+          <button className='btn btn-default' onClick={this.cancelChallenge.bind(this, this.state.index)}>Cancel challenge</button>
         </div> :
         <div>
-          <div>
-          Click on a user to challenge them.
+          <div className='well'>
+            <div>
+            Click on a user to challenge them.
+            </div>
+            <div>
+            Number of active users: {this.props.names && this.props.names.length}
+            </div>
           </div>
-          <div>
-          Number of active users: {this.props.names && this.props.names.length}
-          </div>
+          <hr/>
           <div>
           {this.props.names && this.props.names.map((val, index) => {
-              return <div key={index}><button onClick={this.challenge.bind(this, index)}> {val.name} </button></div>;
+              return <div key={index}><button className='btn btn-default' onClick={this.challenge.bind(this, index)}>
+                {val.name}
+              </button></div>;
             })
           }
           </div>

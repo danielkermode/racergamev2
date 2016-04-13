@@ -1,12 +1,14 @@
 import React, { Component, PropTypes } from 'react';
 import { loader } from './Loader';
 import io from 'socket.io-client';
+import { randLetter } from '../../utils';
 
-function randLetter() {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  return possible.charAt(Math.floor(Math.random() * possible.length));
-}
-
+const speed = 5;
+const finishLine = 83;
+const roadStyle = {
+  backgroundImage: 'url("/road.png")',
+  backgroundRepeat: 'repeat-x'
+};
 
 
 export class GameRoom extends Component {
@@ -25,7 +27,7 @@ export class GameRoom extends Component {
     document.addEventListener('keyup', this.keyLogic);
     if(!window.__blueCar__ && !window.__redCar__) {
       if(this.props.car === 'yellow') {
-        window.__yellowCar__ = './yellowcar.png';
+        window.__yellowCar__ = '/yellowcar.png';
         this.forceUpdate();
       } else if(this.props.car === 'red' || this.props.car === 'blue') {
         window.__blueCar__ = '/bluecar.png';
@@ -49,11 +51,11 @@ export class GameRoom extends Component {
 
   keyLogic = (e) => {
     if(this.props.arrow === e.code.split('').pop() && !this.props.winner) {
-      if(this.state.distance >= 80) {
+      if(this.state.distance >= finishLine) {
         this.props.socket.emit('requestWinner', { room: this.props.gameRoom, winner: this.props.username });
         return;
       }
-      this.setState({ distance: this.state.distance + 2 });
+      this.setState({ distance: this.state.distance + speed });
       this.props.socket.emit('requestArrow', { room: this.props.gameRoom, distance: this.state.distance });
     }
   };
@@ -67,29 +69,38 @@ export class GameRoom extends Component {
         {window.__errer__ && <div style={{color: 'red'}}>{window.__errer__}</div>}
         <div>
           You are the <b>{this.props.car}</b> car.
-          {this.props.car === 'yellow' && <span>(Playing alone)</span>}
+          {this.props.car === 'yellow' && <span> (Playing alone)</span>}
         </div>
         {this.props.winner && <div>{this.props.winner} has won!</div>}
         {!this.props.arrow?
           <div>
-            Game will start in 2 seconds... Get ready!
+            Game will start in two seconds... Get ready!
             {loader()}
           </div> :
           <div>
-          {this.props.arrow.length === 1? <span>Click the {this.props.arrow} key!!!</span> :
+          {this.props.arrow.length === 1? <span>Hit the "{this.props.arrow}" key!</span> :
           <span>{this.props.arrow}</span>}
           </div>
         }
-        {window.__yellowCar__ && <img src={window.__yellowCar__} alt="yellowcar"
-         style={{marginLeft: this.state.distance + '%'}} className="img-responsive" />}
+        {window.__yellowCar__ &&
+        <div className='row' style={roadStyle}>
+          <img src={window.__yellowCar__} alt="yellowcar"
+          style={{ marginLeft: this.state.distance + '%' }} className="img-responsive" />
+        </div>}
         <br/>
-        {window.__blueCar__ && <img src={window.__blueCar__} alt="bluecar"
-         style={{marginLeft: this.props.car === 'blue'? this.state.distance + '%' : this.props.enemyDistance + '%'}}
-         className="img-responsive" />}
+        {window.__blueCar__ &&
+        <div className='row' style={roadStyle}>
+          <img src={window.__blueCar__} alt="bluecar"
+          style={{ marginLeft: this.props.car === 'blue'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
+          className="img-responsive" />
+        </div>}
         <br/>
-        {window.__redCar__ && <img src={window.__redCar__} alt="redcar"
-         style={{marginLeft: this.props.car === 'red'? this.state.distance + '%' : this.props.enemyDistance + '%'}}
-         className="img-responsive" />}
+        {window.__redCar__ &&
+        <div className='row' style={roadStyle}>
+          <img src={window.__redCar__} alt="redcar"
+          style={{ marginLeft: this.props.car === 'red'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
+          className="img-responsive" />
+        </div>}
       </div>
     );
   }

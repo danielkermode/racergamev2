@@ -1,3 +1,4 @@
+import { randLetter } from './utils';
 //this method was easier (took it from socket.io docs) even though it's not es6
 const express = require('express');
 const app = express();
@@ -18,12 +19,6 @@ function checkName(names, name, id) {
     names.push({ name, id });
     return name;
   }
-}
-
-//generate a random upper case letter (used in client code)
-function randLetter() {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  return possible.charAt(Math.floor(Math.random() * possible.length));
 }
 
 app.get('/', function(req, res){
@@ -52,7 +47,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('meetChallenge', function(data) {
     const challenger = names.find(val => val.name === data.challenger);
     const challenged = names.find(val => val.name === data.challenged);
-    io.to(challenger.id).emit('challengeResponse', { answer: data.answer, challenged, challenger });
+    if(challenger) io.to(challenger.id).emit('challengeResponse', { answer: data.answer, challenged, challenger });
     io.to(challenged.id).emit('challenged', false);
   });
 

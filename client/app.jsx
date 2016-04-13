@@ -2,11 +2,14 @@ import React, { Component, PropTypes } from 'react';
 import { Lobby } from './components/Lobby';
 import { Help } from './components/Help';
 import { GameRoom } from './components/GameRoom';
+import NotificationSystem from 'react-notification-system';
 
 export class App extends Component {
   static propTypes = {
     userCount: PropTypes.number
   };
+
+  _notificationSystem = null;
 
   constructor(props) {
     super(props);
@@ -16,6 +19,10 @@ export class App extends Component {
       inGame: false,
       car: undefined
     };
+  }
+
+  componentDidMount() {
+    this._notificationSystem = this.refs.notificationSystem;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,6 +69,13 @@ export class App extends Component {
 
   declineChallenge = () => {
     this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'decline', challenger: this.props.challenged });
+    if(this.props.challenged === this.props.username) {
+      this._notificationSystem.addNotification({
+        title: 'Hey',
+        message: 'You rejected yourself.',
+        level: 'info',
+      });
+    }
   };
 
   playWithSelf = () => {
@@ -72,8 +86,10 @@ export class App extends Component {
   render() {
     return (
       <div style={{ textAlign: 'center' }}>
+        <NotificationSystem ref="notificationSystem" />
         <div>
         <h1>Racecar Game</h1>
+        <Help/>
         <br/>
         {!this.props.username &&
           <div>
@@ -102,15 +118,15 @@ export class App extends Component {
           {this.props.challenged !== this.props.username?
           <div>
             <div>You've been challenged by "{this.props.challenged}"!</div>
-            <button onClick={this.acceptChallenge}> Accept </button>
+            <button className='btn btn-success' onClick={this.acceptChallenge}> Accept </button>
           </div> :
           <div>
             <div>So you want to play with yourself, huh? (Maybe no one's around, I won't judge)</div>
-            <button onClick={this.playWithSelf}> Accept </button>
+            <button className='btn btn-success' onClick={this.playWithSelf}> Accept </button>
           </div>
           }
           <br/>
-          <button onClick={this.declineChallenge}> Decline </button>
+          <button className='btn btn-danger' onClick={this.declineChallenge}> Decline </button>
           <hr/>
         </div>
       }
@@ -120,7 +136,7 @@ export class App extends Component {
       <div>
         <br/>
         <input onKeyDown={this.onEnter} onChange={this.handleChange} type="text" placeholder="Enter your name" />
-        <button onClick={this.goToLobby}>
+        <button className='btn btn-default' onClick={this.goToLobby}>
          Go
         </button>
       </div> :
@@ -136,7 +152,7 @@ export class App extends Component {
       {/* IN GAME, SO NOT IN LOBBY AND NOT CHALLENGED */
         !this.props.challenged && !this.state.inLobby && this.state.inGame &&
         <div>
-          <button onClick={this.goToLobby}>Back to Lobby</button>
+          <button className='btn btn-default' onClick={this.goToLobby}>Back to Lobby</button>
           <GameRoom arrow={this.props.arrow} gameRoom={this.props.gameRoom} winner={this.props.winner}
           car={this.state.car} socket={this.props.socket} username={this.props.username}
           enemyDistance={this.props.enemyDistance}/>
