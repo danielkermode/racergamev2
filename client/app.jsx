@@ -5,7 +5,7 @@ import { GameRoom } from './components/GameRoom';
 
 export class App extends Component {
   static propTypes = {
-    userCount: PropTypes.number,
+    userCount: PropTypes.number
   };
 
   constructor(props) {
@@ -13,8 +13,23 @@ export class App extends Component {
     this.state = {
       username: '',
       inLobby: false,
-      inGame: false
+      inGame: false,
+      car: undefined
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //challenge has been accepted (by other player)
+    if (nextProps.challengeResponse) {
+      if(nextProps.challengeResponse.answer === 'accept') {
+        this.props.socket.emit('requestRoom', {
+          challenger: nextProps.challengeResponse.challenger.name,
+          challenged: nextProps.challengeResponse.challenged.name
+        });
+        this.setState({ inLobby: false, inGame: true, car: 'blue' });
+        window.__challengeResponse__ = false;
+      }
+    }
   }
 
   handleChange = (e) => {
@@ -32,12 +47,16 @@ export class App extends Component {
     if(this.state.username) {
       this.props.socket.emit('requestUsers', this.state.username);
       this.setState({ inLobby: true });
+      if(this.state.inGame) {
+        this.props.socket.emit('leaveGame', this.props.gameRoom);
+        this.setState({ inGame: false, car: undefined })
+      }
     }
   };
 
   acceptChallenge = () => {
     this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'accept', challenger: this.props.challenged });
-    this.setState({ inLobby: false, inGame: true });
+    this.setState({ inLobby: false, inGame: true, car: 'red' });
     this.props.socket.emit('requestRoom', { challenger: this.props.challenged, challenged: this.props.username });
   };
 
@@ -47,7 +66,7 @@ export class App extends Component {
 
   playWithSelf = () => {
     this.props.socket.emit('requestRoom', { challenger: this.props.username, challenged: this.props.username });
-    this.setState({ inLobby: false, inGame: true });
+    this.setState({ inLobby: false, inGame: true, car: 'yellow' });
   };
 
   render() {
@@ -113,10 +132,14 @@ export class App extends Component {
         challengeResponse={this.props.challengeResponse}/>
       </div>
       }
+
       {/* IN GAME, SO NOT IN LOBBY AND NOT CHALLENGED */
         !this.props.challenged && !this.state.inLobby && this.state.inGame &&
         <div>
-          <GameRoom gameRoom={this.props.gameRoom} socket={this.props.socket}/>
+          <button onClick={this.goToLobby}>Back to Lobby</button>
+          <GameRoom arrow={this.props.arrow} gameRoom={this.props.gameRoom} winner={this.props.winner}
+          car={this.state.car} socket={this.props.socket} username={this.props.username}
+          enemyDistance={this.props.enemyDistance}/>
         </div>
       }
     </div>

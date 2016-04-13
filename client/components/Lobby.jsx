@@ -1,8 +1,9 @@
 import React, { Component, PropTypes } from 'react';
+import { loader } from './Loader';
 
 export class Lobby extends Component {
   static propTypes = {
-    names: PropTypes.array,
+    names: PropTypes.array
   };
 
   constructor(props) {
@@ -14,11 +15,11 @@ export class Lobby extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    //challenge has been accepted (by other player)
     if (nextProps.challengeResponse) {
-      if(nextProps.challengeResponse === 'accept') {
-        this.props.socket.emit('requestRoom', { challenger: this.props.username, challenged: this.state.challenging });
+      if(nextProps.challengeResponse.answer === 'decline') {
+        this.setState({ challenging: false, index: 0 });
       }
-      this.setState({ challenging: false, index: 0 });
     }
   }
 
@@ -47,6 +48,7 @@ export class Lobby extends Component {
         <div>
           You are challenging {this.state.challenging}. Awaiting response...
           <br/>
+          {loader()}
           <button onClick={this.cancelChallenge.bind(this, this.state.index)}>Cancel challenge</button>
         </div> :
         <div>

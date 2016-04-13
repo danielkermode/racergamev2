@@ -73,16 +73,19 @@
 	var reactRoot = window.document.getElementById('app');
 
 	//store state in window variables here since this is small. Larger app could use Redux
-	//or something for state management. I know it's bad practice, but again this is a small project
+	//or something for state management. Yes it's bad practice, but again this is a small project
 	//and one of my aims is keeping dependencies to a minimum (as much as possible).
 	//in actuality this works similar to Redux because everything in the window is the "truth" or the store.
+	//certainly this app would be difficult to scale, though. Refactoring would be necessary.
+
+	window.__enemyDistance__ = 0;
 
 	//a user has joined (just visited page, fires when the current user first joins also)
 	socket.on('userCount', function (data) {
 	  window.__userCount__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: data, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
-	    gameRoom: window.__gameRoom__ }), reactRoot);
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
 	//a user has entered their name and wants to see other players
@@ -90,7 +93,7 @@
 	  window.__gameNames__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: data, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
-	    gameRoom: window.__gameRoom__ }), reactRoot);
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
 	//this user has entered their name and wants to see other players (and get username)
@@ -98,7 +101,7 @@
 	  window.__userName__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: data,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
-	    gameRoom: window.__gameRoom__ }), reactRoot);
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
 	//this user has been challenged
@@ -106,7 +109,7 @@
 	  window.__challenged__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: data, challengeResponse: window.__challengeResponse__,
-	    gameRoom: window.__gameRoom__ }), reactRoot);
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
 	//this user has received a reply to their challenge
@@ -114,7 +117,7 @@
 	  window.__challengeResponse__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: data,
-	    gameRoom: window.__gameRoom__ }), reactRoot);
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
 	//this user received a reply to requesting a room (with an opponent or by themselves)
@@ -123,7 +126,46 @@
 	  window.__challenged__ = false;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
-	    gameRoom: data }), reactRoot);
+	    gameRoom: data, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
+	});
+
+	//this user left a game room and returned to the lobby.
+	socket.on('leaveResponse', function () {
+	  window.__gameRoom__ = false;
+	  window.__winner__ = undefined;
+	  window.__enemyDistance__ = 0;
+	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
+	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
+	});
+
+	//this user left a game room and returned to the lobby.
+	socket.on('startGame', function () {
+	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
+	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
+	});
+
+	socket.on('arrowResponse', function (data) {
+	  window.__arrow__ = data;
+	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
+	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
+	    gameRoom: window.__gameRoom__, arrow: data, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
+	});
+
+	socket.on('winnerResponse', function (data) {
+	  window.__winner__ = data;
+	  window.__arrow__ = 'Congratulations!';
+	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
+	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: data, enemyDistance: window.__enemyDistance__ }), reactRoot);
+	});
+
+	socket.on('enemyDistance', function (data) {
+	  window.__enemyDistance__ = data;
+	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
+	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
+	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: data }), reactRoot);
 	});
 
 /***/ },
@@ -28173,9 +28215,9 @@
 
 	var _Lobby = __webpack_require__(214);
 
-	var _Help = __webpack_require__(215);
+	var _Help = __webpack_require__(216);
 
-	var _GameRoom = __webpack_require__(216);
+	var _GameRoom = __webpack_require__(217);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28208,12 +28250,16 @@
 	      if (_this.state.username) {
 	        _this.props.socket.emit('requestUsers', _this.state.username);
 	        _this.setState({ inLobby: true });
+	        if (_this.state.inGame) {
+	          _this.props.socket.emit('leaveGame', _this.props.gameRoom);
+	          _this.setState({ inGame: false, car: undefined });
+	        }
 	      }
 	    };
 
 	    _this.acceptChallenge = function () {
 	      _this.props.socket.emit('meetChallenge', { challenged: _this.props.username, answer: 'accept', challenger: _this.props.challenged });
-	      _this.setState({ inLobby: false, inGame: true });
+	      _this.setState({ inLobby: false, inGame: true, car: 'red' });
 	      _this.props.socket.emit('requestRoom', { challenger: _this.props.challenged, challenged: _this.props.username });
 	    };
 
@@ -28223,18 +28269,34 @@
 
 	    _this.playWithSelf = function () {
 	      _this.props.socket.emit('requestRoom', { challenger: _this.props.username, challenged: _this.props.username });
-	      _this.setState({ inLobby: false, inGame: true });
+	      _this.setState({ inLobby: false, inGame: true, car: 'yellow' });
 	    };
 
 	    _this.state = {
 	      username: '',
 	      inLobby: false,
-	      inGame: false
+	      inGame: false,
+	      car: undefined
 	    };
 	    return _this;
 	  }
 
 	  _createClass(App, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      //challenge has been accepted (by other player)
+	      if (nextProps.challengeResponse) {
+	        if (nextProps.challengeResponse.answer === 'accept') {
+	          this.props.socket.emit('requestRoom', {
+	            challenger: nextProps.challengeResponse.challenger.name,
+	            challenged: nextProps.challengeResponse.challenged.name
+	          });
+	          this.setState({ inLobby: false, inGame: true, car: 'blue' });
+	          window.__challengeResponse__ = false;
+	        }
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -28342,7 +28404,14 @@
 	        !this.props.challenged && !this.state.inLobby && this.state.inGame && _react2.default.createElement(
 	          'div',
 	          null,
-	          _react2.default.createElement(_GameRoom.GameRoom, { gameRoom: this.props.gameRoom, socket: this.props.socket })
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.goToLobby },
+	            'Back to Lobby'
+	          ),
+	          _react2.default.createElement(_GameRoom.GameRoom, { arrow: this.props.arrow, gameRoom: this.props.gameRoom, winner: this.props.winner,
+	            car: this.state.car, socket: this.props.socket, username: this.props.username,
+	            enemyDistance: this.props.enemyDistance })
 	        )
 	      );
 	    }
@@ -28371,6 +28440,8 @@
 	var _react = __webpack_require__(55);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _Loader = __webpack_require__(215);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28414,11 +28485,11 @@
 	  _createClass(Lobby, [{
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
+	      //challenge has been accepted (by other player)
 	      if (nextProps.challengeResponse) {
-	        if (nextProps.challengeResponse === 'accept') {
-	          this.props.socket.emit('requestRoom', { challenger: this.props.username, challenged: this.state.challenging });
+	        if (nextProps.challengeResponse.answer === 'decline') {
+	          this.setState({ challenging: false, index: 0 });
 	        }
-	        this.setState({ challenging: false, index: 0 });
 	      }
 	    }
 	  }, {
@@ -28441,6 +28512,7 @@
 	          this.state.challenging,
 	          '. Awaiting response...',
 	          _react2.default.createElement('br', null),
+	          (0, _Loader.loader)(),
 	          _react2.default.createElement(
 	            'button',
 	            { onClick: this.cancelChallenge.bind(this, this.state.index) },
@@ -28493,6 +28565,39 @@
 /* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.loader = loader;
+
+	var _react = __webpack_require__(55);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function loader() {
+	  return _react2.default.createElement(
+	    "div",
+	    { className: "cssload-content" },
+	    _react2.default.createElement("br", null),
+	    _react2.default.createElement(
+	      "div",
+	      null,
+	      _react2.default.createElement("div", { className: "cssload-l1" }),
+	      _react2.default.createElement("div", { className: "cssload-l2" }),
+	      _react2.default.createElement("div", { className: "cssload-l3" })
+	    ),
+	    _react2.default.createElement("br", null)
+	  );
+	}
+
+/***/ },
+/* 216 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -28540,7 +28645,7 @@
 	Help.propTypes = {};
 
 /***/ },
-/* 216 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28556,6 +28661,8 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _Loader = __webpack_require__(215);
+
 	var _socket = __webpack_require__(2);
 
 	var _socket2 = _interopRequireDefault(_socket);
@@ -28568,41 +28675,130 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	//detect room events here
-	var socket = void 0;
-	if (socket && socket.on) {
-	  socket.on('hi', function (data) {
-	    console.log(data);
-	  });
+	function randLetter() {
+	  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	  return possible.charAt(Math.floor(Math.random() * possible.length));
 	}
 
 	var GameRoom = exports.GameRoom = function (_Component) {
 	  _inherits(GameRoom, _Component);
 
-	  function GameRoom() {
+	  function GameRoom(props) {
 	    _classCallCheck(this, GameRoom);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(GameRoom).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GameRoom).call(this, props));
+
+	    _this.keyLogic = function (e) {
+	      if (_this.props.arrow === e.code.split('').pop() && !_this.props.winner) {
+	        if (_this.state.distance >= 80) {
+	          _this.props.socket.emit('requestWinner', { room: _this.props.gameRoom, winner: _this.props.username });
+	          return;
+	        }
+	        _this.setState({ distance: _this.state.distance + 2 });
+	        _this.props.socket.emit('requestArrow', { room: _this.props.gameRoom, distance: _this.state.distance });
+	      }
+	    };
+
+	    _this.state = {
+	      distance: 0
+	    };
+	    return _this;
 	  }
 
 	  _createClass(GameRoom, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      //disconnect from the default room
-	      this.props.socket.disconnect();
-	      socket = _socket2.default.connect(this.props.gameRoom, {
-	        query: 'ns=' + this.props.gameRoom,
-	        resource: "socket.io"
-	      });
+	      document.addEventListener('keyup', this.keyLogic);
+	      if (!window.__blueCar__ && !window.__redCar__) {
+	        if (this.props.car === 'yellow') {
+	          window.__yellowCar__ = './yellowcar.png';
+	          this.forceUpdate();
+	        } else if (this.props.car === 'red' || this.props.car === 'blue') {
+	          window.__blueCar__ = '/bluecar.png';
+	          window.__redCar__ = '/redcar.png';
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      //it took me longer than I'd like to admit to realise I had to remove the event listener.....
+	      //otherwise the component doesn't unmount properly.
+	      //window vars look ugly don't they. Storing state in the window actually proved to be fine.
+	      //Not very scalable, of course, but it kept things easier logic wise.
+	      document.removeEventListener('keyup', this.keyLogic);
+	      window.__errer__ = undefined;
+	      window.__blueCar__ = undefined;
+	      window.__redCar__ = undefined;
+	      window.__yellowCar__ = undefined;
+	      window.__arrow__ = undefined;
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      this.props.socket.on('someoneLeft', function (data) {
+	        window.__errer__ = 'It seems your opponent has left the room.';
+	      });
 	      return _react2.default.createElement(
 	        'div',
-	        null,
-	        'This is gamerrom. in room ',
-	        this.props.gameRoom
+	        { onKeyDown: this.keyLogic },
+	        window.__errer__ && _react2.default.createElement(
+	          'div',
+	          { style: { color: 'red' } },
+	          window.__errer__
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          'You are the ',
+	          _react2.default.createElement(
+	            'b',
+	            null,
+	            this.props.car
+	          ),
+	          ' car.',
+	          this.props.car === 'yellow' && _react2.default.createElement(
+	            'span',
+	            null,
+	            '(Playing alone)'
+	          )
+	        ),
+	        this.props.winner && _react2.default.createElement(
+	          'div',
+	          null,
+	          this.props.winner,
+	          ' has won!'
+	        ),
+	        !this.props.arrow ? _react2.default.createElement(
+	          'div',
+	          null,
+	          'Game will start in 2 seconds... Get ready!',
+	          (0, _Loader.loader)()
+	        ) : _react2.default.createElement(
+	          'div',
+	          null,
+	          this.props.arrow.length === 1 ? _react2.default.createElement(
+	            'span',
+	            null,
+	            'Click the ',
+	            this.props.arrow,
+	            ' key!!!'
+	          ) : _react2.default.createElement(
+	            'span',
+	            null,
+	            this.props.arrow
+	          )
+	        ),
+	        window.__yellowCar__ && _react2.default.createElement('img', { src: window.__yellowCar__, alt: 'yellowcar',
+	          style: { marginLeft: this.state.distance + '%' }, className: 'img-responsive' }),
+	        _react2.default.createElement('br', null),
+	        window.__blueCar__ && _react2.default.createElement('img', { src: window.__blueCar__, alt: 'bluecar',
+	          style: { marginLeft: this.props.car === 'blue' ? this.state.distance + '%' : this.props.enemyDistance + '%' },
+	          className: 'img-responsive' }),
+	        _react2.default.createElement('br', null),
+	        window.__redCar__ && _react2.default.createElement('img', { src: window.__redCar__, alt: 'redcar',
+	          style: { marginLeft: this.props.car === 'red' ? this.state.distance + '%' : this.props.enemyDistance + '%' },
+	          className: 'img-responsive' })
 	      );
 	    }
 	  }]);
@@ -28610,9 +28806,7 @@
 	  return GameRoom;
 	}(_react.Component);
 
-	GameRoom.propTypes = {
-	  gameRoom: _react.PropTypes.string
-	};
+	GameRoom.propTypes = {};
 
 /***/ }
 /******/ ]);

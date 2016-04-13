@@ -1,0 +1,181 @@
+div.cssload-content {
+  margin: auto;
+  display: box;
+    display: -o-box;
+    display: -ms-box;
+    display: -webkit-box;
+    display: -moz-box;
+  display: flex;
+    display: -o-flex;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+  box-orient: vertical;
+    -o-box-orient: vertical;
+    -ms-box-orient: vertical;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+  box-direction: normal;
+    -o-box-direction: normal;
+    -ms-box-direction: normal;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+  flex-direction: column;
+    -o-flex-direction: column;
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    -moz-flex-direction: column;
+  box-align: center;
+    -o-box-align: center;
+    -ms-box-align: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+  align-items: center;
+    -o-align-items: center;
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+  box-pack: center;
+    -o-box-pack: center;
+    -ms-box-pack: center;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+  justify-content: center;
+    -o-justify-content: center;
+    -ms-justify-content: center;
+    -webkit-justify-content: center;
+    -moz-justify-content: center;
+}
+
+.cssload-l1, .cssload-l2, .cssload-l3 {
+  background: rgb(0,0,0);
+  height: 5px;
+  width: 29px;
+  margin: 5px;
+  animation: cssload-loading1 1.15s 0s infinite ease-in-out;
+    -o-animation: cssload-loading1 1.15s 0s infinite ease-in-out;
+    -ms-animation: cssload-loading1 1.15s 0s infinite ease-in-out;
+    -webkit-animation: cssload-loading1 1.15s 0s infinite ease-in-out;
+    -moz-animation: cssload-loading1 1.15s 0s infinite ease-in-out;
+}
+
+.cssload-l2 {
+  animation: cssload-loading2 0.58s 0s infinite ease-in-out alternate;
+    -o-animation: cssload-loading2 0.58s 0s infinite ease-in-out alternate;
+    -ms-animation: cssload-loading2 0.58s 0s infinite ease-in-out alternate;
+    -webkit-animation: cssload-loading2 0.58s 0s infinite ease-in-out alternate;
+    -moz-animation: cssload-loading2 0.58s 0s infinite ease-in-out alternate;
+}
+
+.cssload-l3 {
+  animation: cssload-loading1 1.15s 0s infinite ease-in-out reverse;
+    -o-animation: cssload-loading1 1.15s 0s infinite ease-in-out reverse;
+    -ms-animation: cssload-loading1 1.15s 0s infinite ease-in-out reverse;
+    -webkit-animation: cssload-loading1 1.15s 0s infinite ease-in-out reverse;
+    -moz-animation: cssload-loading1 1.15s 0s infinite ease-in-out reverse;
+}
+
+@keyframes cssload-loading1 {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes cssload-loading1 {
+  0% {
+    -o-transform: rotate(0deg);
+  }
+  50% {
+    -o-transform: rotate(180deg);
+  }
+  100% {
+    -o-transform: rotate(360deg);
+  }
+}
+
+@-ms-keyframes cssload-loading1 {
+  0% {
+    -ms-transform: rotate(0deg);
+  }
+  50% {
+    -ms-transform: rotate(180deg);
+  }
+  100% {
+    -ms-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes cssload-loading1 {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  50% {
+    -webkit-transform: rotate(180deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes cssload-loading1 {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  50% {
+    -moz-transform: rotate(180deg);
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@keyframes cssload-loading2 {
+  0% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(-10px);
+  }
+}
+
+@-o-keyframes cssload-loading2 {
+  0% {
+    -o-transform: translateX(10px);
+  }
+  100% {
+    -o-transform: translateX(-10px);
+  }
+}
+
+@-ms-keyframes cssload-loading2 {
+  0% {
+    -ms-transform: translateX(10px);
+  }
+  100% {
+    -ms-transform: translateX(-10px);
+  }
+}
+
+@-webkit-keyframes cssload-loading2 {
+  0% {
+    -webkit-transform: translateX(10px);
+  }
+  100% {
+    -webkit-transform: translateX(-10px);
+  }
+}
+
+@-moz-keyframes cssload-loading2 {
+  0% {
+    -moz-transform: translateX(10px);
+  }
+  100% {
+    -moz-transform: translateX(-10px);
+  }
+}
