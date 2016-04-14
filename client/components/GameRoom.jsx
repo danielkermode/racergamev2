@@ -29,7 +29,7 @@ export class GameRoom extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('keyup', this.keyLogic);
+    document.addEventListener('keydown', this.keyLogic);
     if(!window.__blueCar__ && !window.__redCar__) {
       if(this.props.car === 'yellow') {
         window.__yellowCar__ = '/resources/yellowcar.png';
@@ -46,7 +46,7 @@ export class GameRoom extends Component {
     //otherwise the component doesn't unmount properly.
     //window vars look ugly don't they. Storing state in the window actually proved to be fine.
     //Not very scalable, of course, but it kept things easier logic wise.
-    document.removeEventListener('keyup', this.keyLogic);
+    document.removeEventListener('keydown', this.keyLogic);
     window.__errer__ = undefined;
     window.__blueCar__ = undefined;
     window.__redCar__ = undefined;

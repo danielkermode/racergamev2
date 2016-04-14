@@ -70,7 +70,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var socket = (0, _socket2.default)();
-	var reactRoot = window.document.getElementById('app');
+	var reactRoot = document.getElementById('app');
 
 	//store state in window variables here since this is small. Larger app could use Redux
 	//or something for state management. Yes it's bad practice, but again this is a small project
@@ -31867,7 +31867,7 @@
 	  _createClass(GameRoom, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      document.addEventListener('keyup', this.keyLogic);
+	      document.addEventListener('keydown', this.keyLogic);
 	      if (!window.__blueCar__ && !window.__redCar__) {
 	        if (this.props.car === 'yellow') {
 	          window.__yellowCar__ = '/resources/yellowcar.png';
@@ -31885,7 +31885,7 @@
 	      //otherwise the component doesn't unmount properly.
 	      //window vars look ugly don't they. Storing state in the window actually proved to be fine.
 	      //Not very scalable, of course, but it kept things easier logic wise.
-	      document.removeEventListener('keyup', this.keyLogic);
+	      document.removeEventListener('keydown', this.keyLogic);
 	      window.__errer__ = undefined;
 	      window.__blueCar__ = undefined;
 	      window.__redCar__ = undefined;
