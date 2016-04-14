@@ -27,7 +27,7 @@ export class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     //challenge has been accepted (by other player)
-    if (nextProps.challengeResponse) {
+    if(nextProps.challengeResponse) {
       if(nextProps.challengeResponse.answer === 'accept') {
         this.props.socket.emit('requestRoom', {
           challenger: nextProps.challengeResponse.challenger.name,
@@ -36,6 +36,17 @@ export class App extends Component {
         this.setState({ inLobby: false, inGame: true, car: 'blue' });
         window.__challengeResponse__ = false;
       }
+    }
+
+    //check if the challenge was canceled
+    if(nextProps.challenged && nextProps.challenged.cancel) {
+      this._notificationSystem.addNotification({
+        title: 'Cancelled',
+        message: 'The other person cancelled the challenge.',
+        level: 'info'
+      });
+      window.__challenged__ = false;
+      this.props.socket.emit('requestRefresh');
     }
   }
 
@@ -56,7 +67,7 @@ export class App extends Component {
       this.setState({ inLobby: true });
       if(this.state.inGame) {
         this.props.socket.emit('leaveGame', this.props.gameRoom);
-        this.setState({ inGame: false, car: undefined })
+        this.setState({ inGame: false, car: undefined });
       }
     }
   };
@@ -68,13 +79,10 @@ export class App extends Component {
   };
 
   declineChallenge = () => {
-    this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'decline', challenger: this.props.challenged });
     if(this.props.challenged === this.props.username) {
-      this._notificationSystem.addNotification({
-        title: 'Hey',
-        message: 'You rejected yourself.',
-        level: 'info',
-      });
+      this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'rejectSelf', challenger: this.props.challenged });
+    } else {
+      this.props.socket.emit('meetChallenge', { challenged: this.props.username, answer: 'decline', challenger: this.props.challenged });
     }
   };
 
@@ -91,7 +99,8 @@ export class App extends Component {
         <h1>Racecar Game</h1>
         <Help/>
         <br/>
-        {!this.props.username &&
+        {/* WELCOME MESSAGE IF NO LOGIN */
+          !this.props.username &&
           <div>
           Welcome! Who are you?
           <hr/>
@@ -113,15 +122,17 @@ export class App extends Component {
       }
 
       {/* CHALLENGED NOTIFICATION */
-        this.props.challenged &&
+        this.props.challenged && !this.props.challenged.cancel &&
         <div>
           {this.props.challenged !== this.props.username?
           <div>
             <div>You've been challenged by "{this.props.challenged}"!</div>
+            <hr/>
             <button className='btn btn-success' onClick={this.acceptChallenge}> Accept </button>
           </div> :
           <div>
             <div>So you want to play with yourself, huh? (Maybe no one's around, I won't judge)</div>
+            <hr/>
             <button className='btn btn-success' onClick={this.playWithSelf}> Accept </button>
           </div>
           }
@@ -131,7 +142,7 @@ export class App extends Component {
         </div>
       }
 
-      {/* INITIAL FORM LOGIN */
+      {/* INITIAL INPUT FORM LOGIN */
       !this.state.inLobby && !this.state.inGame?
       <div>
         <br/>

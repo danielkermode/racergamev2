@@ -24,14 +24,19 @@ export class Lobby extends Component {
   componentWillReceiveProps(nextProps) {
     //challenge has been declined (by other player)
     if (nextProps.challengeResponse) {
-      if(nextProps.challengeResponse.answer === 'decline') {
+      if(nextProps.challengeResponse.answer === 'decline' && this.state.challenging) {
         this.setState({ challenging: false, index: 0 });
         this._notificationSystem.addNotification({
-          title: 'Hey',
-          message: 'Your response got declined. Sorry.',
-          level: 'info',
+          title: 'Declined',
+          message: 'Your challenge got declined. Sorry.',
+          level: 'error'
         });
         window.__challengeResponse__ = undefined;
+        this.props.socket.emit('requestRefresh');
+      }
+      if(nextProps.challengeResponse.answer === 'rejectSelf') {
+        window.__challengeResponse__ = undefined;
+        this.props.socket.emit('requestRefresh');
       }
     }
   }
@@ -41,6 +46,7 @@ export class Lobby extends Component {
       challenged: this.props.names[index].name,
       challenger: this.props.username
     });
+    this.props.socket.emit('requestRefresh');
     this.props.names[index].name !== this.props.username &&
     this.setState({ challenging: this.props.names[index].name, index });
   };
@@ -51,6 +57,14 @@ export class Lobby extends Component {
       challenger: undefined
     });
     this.setState({ challenging: false, index: 0 });
+  };
+
+  userInChallenge = () => {
+    this._notificationSystem.addNotification({
+      title: 'User in challenge',
+      message: 'That user is already in a challenge.',
+      level: 'info'
+    });
   };
 
   render() {
@@ -66,18 +80,21 @@ export class Lobby extends Component {
           <button className='btn btn-default' onClick={this.cancelChallenge.bind(this, this.state.index)}>Cancel challenge</button>
         </div> :
         <div>
-          <div className='well'>
+          <div>
             <div>
             Click on a user to challenge them.
             </div>
             <div>
-            Number of active users: {this.props.names && this.props.names.length}
+            {this.props.names && this.props.names.length} user{this.props.names && this.props.names.length > 1 && <span>s</span>}
+            &nbsp;in the lobby right now.
             </div>
           </div>
           <hr/>
-          <div>
+          <div className='well' style={{ marginRight: '25%', marginLeft: '25%' }}>
           {this.props.names && this.props.names.map((val, index) => {
-              return <div key={index}><button className='btn btn-default' onClick={this.challenge.bind(this, index)}>
+              return <div key={index}><button
+              className={val.inChallenge? 'btn btn-default active' : 'btn btn-default'}
+              onClick={val.inChallenge? this.userInChallenge : this.challenge.bind(this, index)}>
                 {val.name}
               </button></div>;
             })

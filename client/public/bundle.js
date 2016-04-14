@@ -78,7 +78,7 @@
 	//in actuality this works similar to Redux because everything in the window is the "truth" or the store.
 	//certainly this app would be difficult to scale, though. Refactoring would be necessary.
 
-	window.__enemyDistance__ = 0;
+	window.__enemyDistance__ = 1;
 
 	//a user has joined (just visited page, fires when the current user first joins also)
 	socket.on('userCount', function (data) {
@@ -133,19 +133,20 @@
 	socket.on('leaveResponse', function () {
 	  window.__gameRoom__ = false;
 	  window.__winner__ = undefined;
-	  window.__enemyDistance__ = 0;
+	  window.__enemyDistance__ = 1;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
 	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
-	//this user left a game room and returned to the lobby.
-	socket.on('startGame', function () {
+	//refresh the app with window props.
+	socket.on('refreshResponse', function () {
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
 	    userCount: window.__userCount__, challenged: window.__challenged__, challengeResponse: window.__challengeResponse__,
 	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
+	//a key has been seen from the server (for the player to click to advance their car)
 	socket.on('arrowResponse', function (data) {
 	  window.__arrow__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
@@ -153,6 +154,7 @@
 	    gameRoom: window.__gameRoom__, arrow: data, winner: window.__winner__, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
+	//a winner has been determined in the game
 	socket.on('winnerResponse', function (data) {
 	  window.__winner__ = data;
 	  window.__arrow__ = 'Congratulations!';
@@ -161,6 +163,7 @@
 	    gameRoom: window.__gameRoom__, arrow: window.__arrow__, winner: data, enemyDistance: window.__enemyDistance__ }), reactRoot);
 	});
 
+	//the enemy car has advanced.
 	socket.on('enemyDistance', function (data) {
 	  window.__enemyDistance__ = data;
 	  _reactDom2.default.render(_react2.default.createElement(_app.App, { socket: socket, userId: socket.id, names: window.__gameNames__, username: window.__userName__,
@@ -28288,13 +28291,10 @@
 	    };
 
 	    _this.declineChallenge = function () {
-	      _this.props.socket.emit('meetChallenge', { challenged: _this.props.username, answer: 'decline', challenger: _this.props.challenged });
 	      if (_this.props.challenged === _this.props.username) {
-	        _this._notificationSystem.addNotification({
-	          title: 'Hey',
-	          message: 'You rejected yourself.',
-	          level: 'info'
-	        });
+	        _this.props.socket.emit('meetChallenge', { challenged: _this.props.username, answer: 'rejectSelf', challenger: _this.props.challenged });
+	      } else {
+	        _this.props.socket.emit('meetChallenge', { challenged: _this.props.username, answer: 'decline', challenger: _this.props.challenged });
 	      }
 	    };
 
@@ -28331,6 +28331,17 @@
 	          window.__challengeResponse__ = false;
 	        }
 	      }
+
+	      //check if the challenge was canceled
+	      if (nextProps.challenged && nextProps.challenged.cancel) {
+	        this._notificationSystem.addNotification({
+	          title: 'Cancelled',
+	          message: 'The other person cancelled the challenge.',
+	          level: 'info'
+	        });
+	        window.__challenged__ = false;
+	        this.props.socket.emit('requestRefresh');
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -28349,6 +28360,7 @@
 	          ),
 	          _react2.default.createElement(_Help.Help, null),
 	          _react2.default.createElement('br', null),
+	          /* WELCOME MESSAGE IF NO LOGIN */
 	          !this.props.username && _react2.default.createElement(
 	            'div',
 	            null,
@@ -28378,7 +28390,7 @@
 	          _react2.default.createElement('hr', null)
 	        ),
 	        /* CHALLENGED NOTIFICATION */
-	        this.props.challenged && _react2.default.createElement(
+	        this.props.challenged && !this.props.challenged.cancel && _react2.default.createElement(
 	          'div',
 	          null,
 	          this.props.challenged !== this.props.username ? _react2.default.createElement(
@@ -28391,6 +28403,7 @@
 	              this.props.challenged,
 	              '"!'
 	            ),
+	            _react2.default.createElement('hr', null),
 	            _react2.default.createElement(
 	              'button',
 	              { className: 'btn btn-success', onClick: this.acceptChallenge },
@@ -28404,6 +28417,7 @@
 	              null,
 	              'So you want to play with yourself, huh? (Maybe no one\'s around, I won\'t judge)'
 	            ),
+	            _react2.default.createElement('hr', null),
 	            _react2.default.createElement(
 	              'button',
 	              { className: 'btn btn-success', onClick: this.playWithSelf },
@@ -28418,7 +28432,7 @@
 	          ),
 	          _react2.default.createElement('hr', null)
 	        ),
-	        /* INITIAL FORM LOGIN */
+	        /* INITIAL INPUT FORM LOGIN */
 	        !this.state.inLobby && !this.state.inGame ? _react2.default.createElement(
 	          'div',
 	          null,
@@ -28508,6 +28522,7 @@
 	        challenged: _this.props.names[index].name,
 	        challenger: _this.props.username
 	      });
+	      _this.props.socket.emit('requestRefresh');
 	      _this.props.names[index].name !== _this.props.username && _this.setState({ challenging: _this.props.names[index].name, index: index });
 	    };
 
@@ -28517,6 +28532,14 @@
 	        challenger: undefined
 	      });
 	      _this.setState({ challenging: false, index: 0 });
+	    };
+
+	    _this.userInChallenge = function () {
+	      _this._notificationSystem.addNotification({
+	        title: 'User in challenge',
+	        message: 'That user is already in a challenge.',
+	        level: 'info'
+	      });
 	    };
 
 	    _this.state = {
@@ -28536,14 +28559,19 @@
 	    value: function componentWillReceiveProps(nextProps) {
 	      //challenge has been declined (by other player)
 	      if (nextProps.challengeResponse) {
-	        if (nextProps.challengeResponse.answer === 'decline') {
+	        if (nextProps.challengeResponse.answer === 'decline' && this.state.challenging) {
 	          this.setState({ challenging: false, index: 0 });
 	          this._notificationSystem.addNotification({
-	            title: 'Hey',
-	            message: 'Your response got declined. Sorry.',
-	            level: 'info'
+	            title: 'Declined',
+	            message: 'Your challenge got declined. Sorry.',
+	            level: 'error'
 	          });
 	          window.__challengeResponse__ = undefined;
+	          this.props.socket.emit('requestRefresh');
+	        }
+	        if (nextProps.challengeResponse.answer === 'rejectSelf') {
+	          window.__challengeResponse__ = undefined;
+	          this.props.socket.emit('requestRefresh');
 	        }
 	      }
 	    }
@@ -28579,7 +28607,7 @@
 	          null,
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'well' },
+	            null,
 	            _react2.default.createElement(
 	              'div',
 	              null,
@@ -28588,21 +28616,29 @@
 	            _react2.default.createElement(
 	              'div',
 	              null,
-	              'Number of active users: ',
-	              this.props.names && this.props.names.length
+	              this.props.names && this.props.names.length,
+	              ' user',
+	              this.props.names && this.props.names.length > 1 && _react2.default.createElement(
+	                'span',
+	                null,
+	                's'
+	              ),
+	              ' in the lobby right now.'
 	            )
 	          ),
 	          _react2.default.createElement('hr', null),
 	          _react2.default.createElement(
 	            'div',
-	            null,
+	            { className: 'well', style: { marginRight: '25%', marginLeft: '25%' } },
 	            this.props.names && this.props.names.map(function (val, index) {
 	              return _react2.default.createElement(
 	                'div',
 	                { key: index },
 	                _react2.default.createElement(
 	                  'button',
-	                  { className: 'btn btn-default', onClick: _this2.challenge.bind(_this2, index) },
+	                  {
+	                    className: val.inChallenge ? 'btn btn-default active' : 'btn btn-default',
+	                    onClick: val.inChallenge ? _this2.userInChallenge : _this2.challenge.bind(_this2, index) },
 	                  val.name
 	                )
 	              );
@@ -29699,7 +29735,7 @@
 	          null,
 	          _react2.default.createElement(
 	            'button',
-	            { className: 'btn btn-info', onClick: this.toggleModal },
+	            { className: 'btn btn-primary', onClick: this.toggleModal },
 	            'About'
 	          )
 	        ),
@@ -29732,7 +29768,7 @@
 	                null,
 	                'How it works:'
 	              ),
-	              ' Enter your name and you\'ll join a lobby with everyone else connected to the socket.io server (ie. everyone else on the page). Click on someone\'s name to challenge them. If they accept, you\'ll enter a game where you each have a racecar, and it\'s a battle of reactions to see who can make it to the finish (the right hand side of the page). A letter of the alphabet will be shown, and whoever clicks it first moves forward. This will prompt a new letter to both players, and so on. '
+	              ' Enter your name and you\'ll join a lobby with everyone else connected to the socket.io server. Click on someone\'s name to challenge them (if the button is indented, it means that they are already in a pending challenge). If they accept, you\'ll enter a game where you each have a racecar, and it\'s a battle of reactions to see who can make it to the finish. A letter of the alphabet will be shown, and whoever clicks it first moves forward. This will prompt a new letter to both players, and so on. '
 	            ),
 	            _react2.default.createElement(
 	              'p',
@@ -29770,23 +29806,27 @@
 	            ),
 	            _react2.default.createElement('hr', null),
 	            _react2.default.createElement(
-	              'p',
-	              null,
-	              'Author: Daniel Kermode'
-	            ),
-	            _react2.default.createElement(
-	              'p',
-	              null,
-	              'Email: danielkermode@hotmail.co.nz'
-	            ),
-	            _react2.default.createElement(
-	              'p',
-	              null,
-	              'Github: ',
+	              'footer',
+	              { style: { fontSize: '85%' } },
 	              _react2.default.createElement(
-	                'a',
-	                { href: 'https://github.com/danielkermode' },
-	                'github.com/danielkermode'
+	                'p',
+	                null,
+	                'Author: Daniel Kermode'
+	              ),
+	              _react2.default.createElement(
+	                'p',
+	                null,
+	                'Email: danielkermode@hotmail.co.nz'
+	              ),
+	              _react2.default.createElement(
+	                'p',
+	                null,
+	                'Github: ',
+	                _react2.default.createElement(
+	                  'a',
+	                  { href: 'https://github.com/danielkermode' },
+	                  'github.com/danielkermode'
+	                )
 	              )
 	            )
 	          )
@@ -31789,8 +31829,14 @@
 	var speed = 5;
 	var finishLine = 83;
 	var roadStyle = {
-	  backgroundImage: 'url("/road.png")',
+	  backgroundImage: 'url("/resources/road.png")',
 	  backgroundRepeat: 'repeat-x'
+	};
+
+	var roadLineStyle = {
+	  backgroundImage: 'url("/resources/roadline.png")',
+	  backgroundRepeat: 'repeat-x',
+	  backgroundSize: '100%'
 	};
 
 	var GameRoom = exports.GameRoom = function (_Component) {
@@ -31813,7 +31859,7 @@
 	    };
 
 	    _this.state = {
-	      distance: 0
+	      distance: 1
 	    };
 	    return _this;
 	  }
@@ -31824,11 +31870,11 @@
 	      document.addEventListener('keyup', this.keyLogic);
 	      if (!window.__blueCar__ && !window.__redCar__) {
 	        if (this.props.car === 'yellow') {
-	          window.__yellowCar__ = '/yellowcar.png';
+	          window.__yellowCar__ = '/resources/yellowcar.png';
 	          this.forceUpdate();
 	        } else if (this.props.car === 'red' || this.props.car === 'blue') {
-	          window.__blueCar__ = '/bluecar.png';
-	          window.__redCar__ = '/redcar.png';
+	          window.__blueCar__ = '/resources/bluecar.png';
+	          window.__redCar__ = '/resources/redcar.png';
 	        }
 	      }
 	    }
@@ -31845,6 +31891,7 @@
 	      window.__redCar__ = undefined;
 	      window.__yellowCar__ = undefined;
 	      window.__arrow__ = undefined;
+	      window.__challengeResponse__ = undefined;
 	    }
 	  }, {
 	    key: 'render',
@@ -31878,9 +31925,13 @@
 	        ),
 	        this.props.winner && _react2.default.createElement(
 	          'div',
-	          null,
-	          this.props.winner,
-	          ' has won!'
+	          { className: 'animated jello' },
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            this.props.winner,
+	            ' has won!'
+	          )
 	        ),
 	        !this.props.arrow ? _react2.default.createElement(
 	          'div',
@@ -31902,21 +31953,29 @@
 	            this.props.arrow
 	          )
 	        ),
+	        _react2.default.createElement('hr', null),
 	        window.__yellowCar__ && _react2.default.createElement(
 	          'div',
 	          { className: 'row', style: roadStyle },
 	          _react2.default.createElement('img', { src: window.__yellowCar__, alt: 'yellowcar',
 	            style: { marginLeft: this.state.distance + '%' }, className: 'img-responsive' })
 	        ),
-	        _react2.default.createElement('br', null),
 	        window.__blueCar__ && _react2.default.createElement(
 	          'div',
-	          { className: 'row', style: roadStyle },
-	          _react2.default.createElement('img', { src: window.__blueCar__, alt: 'bluecar',
-	            style: { marginLeft: this.props.car === 'blue' ? this.state.distance + '%' : this.props.enemyDistance + '%' },
-	            className: 'img-responsive' })
+	          null,
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row', style: roadStyle },
+	            _react2.default.createElement('img', { src: window.__blueCar__, alt: 'bluecar',
+	              style: { marginLeft: this.props.car === 'blue' ? this.state.distance + '%' : this.props.enemyDistance + '%' },
+	              className: 'img-responsive' })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row', style: roadLineStyle },
+	            _react2.default.createElement('img', { className: 'roadline', src: '/resources/roadline.png' })
+	          )
 	        ),
-	        _react2.default.createElement('br', null),
 	        window.__redCar__ && _react2.default.createElement(
 	          'div',
 	          { className: 'row', style: roadStyle },

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { App } from './app'
 
 const socket = io();
-const reactRoot = window.document.getElementById('app');
+const reactRoot = document.getElementById('app');
 
 //store state in window variables here since this is small. Larger app could use Redux
 //or something for state management. Yes it's bad practice, but again this is a small project
@@ -12,7 +12,7 @@ const reactRoot = window.document.getElementById('app');
 //in actuality this works similar to Redux because everything in the window is the "truth" or the store.
 //certainly this app would be difficult to scale, though. Refactoring would be necessary.
 
-window.__enemyDistance__ = 0;
+window.__enemyDistance__ = 1;
 
 //a user has joined (just visited page, fires when the current user first joins also)
 socket.on('userCount', function(data) {
@@ -85,7 +85,7 @@ socket.on('roomResponse', function(data) {
 socket.on('leaveResponse', function() {
   window.__gameRoom__ = false;
   window.__winner__ = undefined;
-  window.__enemyDistance__ = 0;
+  window.__enemyDistance__ = 1;
   ReactDOM.render(
     <App socket={socket} userId={socket.id} names={window.__gameNames__} username={window.__userName__}
     userCount={window.__userCount__} challenged={window.__challenged__} challengeResponse={window.__challengeResponse__}
@@ -94,8 +94,8 @@ socket.on('leaveResponse', function() {
   );
 });
 
-//this user left a game room and returned to the lobby.
-socket.on('startGame', function() {
+//refresh the app with window props.
+socket.on('refreshResponse', function() {
   ReactDOM.render(
     <App socket={socket} userId={socket.id} names={window.__gameNames__} username={window.__userName__}
     userCount={window.__userCount__} challenged={window.__challenged__} challengeResponse={window.__challengeResponse__}
@@ -104,6 +104,7 @@ socket.on('startGame', function() {
   );
 });
 
+//a key has been seen from the server (for the player to click to advance their car)
 socket.on('arrowResponse', function(data) {
   window.__arrow__ = data;
   ReactDOM.render(
@@ -114,6 +115,7 @@ socket.on('arrowResponse', function(data) {
   );
 });
 
+//a winner has been determined in the game
 socket.on('winnerResponse', function(data) {
   window.__winner__ = data;
   window.__arrow__ = 'Congratulations!';
@@ -125,6 +127,7 @@ socket.on('winnerResponse', function(data) {
   );
 });
 
+//the enemy car has advanced.
 socket.on('enemyDistance', function(data) {
   window.__enemyDistance__ = data;
   ReactDOM.render(

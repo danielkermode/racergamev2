@@ -6,10 +6,15 @@ import { randLetter } from '../../utils';
 const speed = 5;
 const finishLine = 83;
 const roadStyle = {
-  backgroundImage: 'url("/road.png")',
+  backgroundImage: 'url("/resources/road.png")',
   backgroundRepeat: 'repeat-x'
 };
 
+const roadLineStyle = {
+  backgroundImage: 'url("/resources/roadline.png")',
+  backgroundRepeat: 'repeat-x',
+  backgroundSize: '100%'
+};
 
 export class GameRoom extends Component {
   static propTypes = {
@@ -19,7 +24,7 @@ export class GameRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      distance: 0
+      distance: 1
     };
   }
 
@@ -27,11 +32,11 @@ export class GameRoom extends Component {
     document.addEventListener('keyup', this.keyLogic);
     if(!window.__blueCar__ && !window.__redCar__) {
       if(this.props.car === 'yellow') {
-        window.__yellowCar__ = '/yellowcar.png';
+        window.__yellowCar__ = '/resources/yellowcar.png';
         this.forceUpdate();
       } else if(this.props.car === 'red' || this.props.car === 'blue') {
-        window.__blueCar__ = '/bluecar.png';
-        window.__redCar__ = '/redcar.png';
+        window.__blueCar__ = '/resources/bluecar.png';
+        window.__redCar__ = '/resources/redcar.png';
       }
     }
   }
@@ -47,6 +52,7 @@ export class GameRoom extends Component {
     window.__redCar__ = undefined;
     window.__yellowCar__ = undefined;
     window.__arrow__ = undefined;
+    window.__challengeResponse__ = undefined;
   }
 
   keyLogic = (e) => {
@@ -71,7 +77,11 @@ export class GameRoom extends Component {
           You are the <b>{this.props.car}</b> car.
           {this.props.car === 'yellow' && <span> (Playing alone)</span>}
         </div>
-        {this.props.winner && <div>{this.props.winner} has won!</div>}
+        {this.props.winner &&
+            <div className='animated jello'>
+              <h3>{this.props.winner} has won!</h3>
+            </div>
+        }
         {!this.props.arrow?
           <div>
             Game will start in two seconds... Get ready!
@@ -82,24 +92,28 @@ export class GameRoom extends Component {
           <span>{this.props.arrow}</span>}
           </div>
         }
+        <hr/>
         {window.__yellowCar__ &&
         <div className='row' style={roadStyle}>
-          <img src={window.__yellowCar__} alt="yellowcar"
-          style={{ marginLeft: this.state.distance + '%' }} className="img-responsive" />
+          <img src={window.__yellowCar__} alt='yellowcar'
+          style={{ marginLeft: this.state.distance + '%' }} className='img-responsive' />
         </div>}
-        <br/>
         {window.__blueCar__ &&
-        <div className='row' style={roadStyle}>
-          <img src={window.__blueCar__} alt="bluecar"
-          style={{ marginLeft: this.props.car === 'blue'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
-          className="img-responsive" />
+        <div>
+          <div className='row' style={roadStyle}>
+            <img src={window.__blueCar__} alt='bluecar'
+            style={{ marginLeft: this.props.car === 'blue'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
+            className='img-responsive' />
+          </div>
+          <div className='row' style={roadLineStyle}>
+            <img className='roadline' src={'/resources/roadline.png'} />
+          </div>
         </div>}
-        <br/>
         {window.__redCar__ &&
         <div className='row' style={roadStyle}>
-          <img src={window.__redCar__} alt="redcar"
+          <img src={window.__redCar__} alt='redcar'
           style={{ marginLeft: this.props.car === 'red'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
-          className="img-responsive" />
+          className='img-responsive' />
         </div>}
       </div>
     );

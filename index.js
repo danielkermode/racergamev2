@@ -9,11 +9,12 @@ const url = require('url');
 //store state in a variable since this is a small app. If this was larger could use a database.
 let users = [];
 //names in a separate array because they could differ; a user may connect but not enter a name
+//players in a game will be filtered from this names array.
 let names = [];
 
 //recursively check names to avoid conflicts (underscore will be added for each duplicate)
 function checkName(names, name, id) {
-  if(names.map(val => val.name).indexOf(name) > -+1) {
+  if(names.map(val => val.name).indexOf(name) > -1) {
     checkName(names, name + '_', id);
   } else {
     names.push({ name, id });
@@ -41,14 +42,30 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('challenge', function(data) {
     const challenged = names.find(val => val.name === data.challenged);
+    const challenger = names.find(val => val.name === data.challenger);
+    if (challenger) {
+      names[names.findIndex(val => val.name === data.challenger)].inChallenge = true;
+    }
+    if(challenged) {
+      names[names.findIndex(val => val.name === data.challenged)].inChallenge = true;
+    }
+    if(!data.challenger) {
+      data.challenger = { cancel: true };
+      names[names.findIndex(val => val.id === socket.id)].inChallenge = undefined;
+      names[names.findIndex(val => val.name === data.challenged)].inChallenge = undefined;
+    }
     io.to(challenged.id).emit('challenged', data.challenger);
+    io.emit('respondUsers', names);
   });
 
   socket.on('meetChallenge', function(data) {
     const challenger = names.find(val => val.name === data.challenger);
     const challenged = names.find(val => val.name === data.challenged);
+    names[names.findIndex(val => val.name === data.challenger)].inChallenge = undefined;
+    names[names.findIndex(val => val.name === data.challenged)].inChallenge = undefined;
+    io.emit('respondUsers', names);
     if(challenger) io.to(challenger.id).emit('challengeResponse', { answer: data.answer, challenged, challenger });
-    io.to(challenged.id).emit('challenged', false);
+    socket.emit('challenged', false);
   });
 
   socket.on('requestRoom', function(data) {
@@ -62,6 +79,7 @@ io.sockets.on('connection', function(socket) {
           curSocket.join(data.challenger);
           setTimeout(() => curSocket.emit('arrowResponse', randLetter()), 2000);
           names = names.filter(val => val.id !== curSocket.id);
+          io.emit('respondUsers', names);
         }
       }
     }
@@ -83,6 +101,10 @@ io.sockets.on('connection', function(socket) {
     socket.leave(data);
     io.to(data).emit('someoneLeft');
     socket.emit('leaveResponse');
+  });
+
+  socket.on('requestRefresh', function() {
+    socket.emit('refreshResponse');
   });
 
   socket.on('disconnect', function() {

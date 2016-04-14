@@ -29,7 +29,7 @@ export class Help extends Component {
     return (
       <div>
         <div>
-          <button className='btn btn-info' onClick={this.toggleModal}>About</button>
+          <button className='btn btn-primary' onClick={this.toggleModal}>About</button>
         </div>
         <Modal
           className="Modal__Bootstrap modal-dialog"
@@ -41,9 +41,10 @@ export class Help extends Component {
           <div style={{ marginLeft: '20%', marginRight: '20%' }}>
             <p>This is a racecar game. Made mainly using Socket.io and React.js.</p>
             <p><b>How it works:</b> Enter your name and you'll join a lobby with everyone else connected
-            to the socket.io server (ie. everyone else on the page). Click on someone's name to challenge
-            them. If they accept, you'll enter a game where you each have a racecar, and it's a
-            battle of reactions to see who can make it to the finish (the right hand side of the page).
+            to the socket.io server. Click on someone's name to challenge
+            them (if the button is indented, it means that they are already in a pending challenge).
+            If they accept, you'll enter a game where you each have a racecar, and it's a
+            battle of reactions to see who can make it to the finish.
             A letter of the alphabet will be shown, and whoever clicks it first moves forward. This
             will prompt a new letter to both players, and so on. </p>
             <p>You can also play in single player mode by challenging yourself if you're that way
@@ -57,9 +58,11 @@ export class Help extends Component {
               <button className="btn btn-default" onClick={this.toggleModal}>I see</button>
             </p>
             <hr/>
-            <p>Author: Daniel Kermode</p>
-            <p>Email: danielkermode@hotmail.co.nz</p>
-            <p>Github: <a href='https://github.com/danielkermode'>github.com/danielkermode</a></p>
+            <footer style={{ fontSize: '85%' }}>
+              <p>Author: Daniel Kermode</p>
+              <p>Email: danielkermode@hotmail.co.nz</p>
+              <p>Github: <a href='https://github.com/danielkermode'>github.com/danielkermode</a></p>
+            </footer>
           </div>
         </Modal>
       </div>
