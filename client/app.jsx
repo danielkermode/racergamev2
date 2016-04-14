@@ -4,6 +4,9 @@ import { Help } from './components/Help';
 import { GameRoom } from './components/GameRoom';
 import NotificationSystem from 'react-notification-system';
 
+// Internet Explorer 6-11
+const isIE = /*@cc_on!@*/false || !!document.documentMode;
+
 export class App extends Component {
   static propTypes = {
     userCount: PropTypes.number
@@ -99,6 +102,12 @@ export class App extends Component {
         <h1>Racecar Game</h1>
         <Help/>
         <br/>
+        {/* IE NOTICE */
+          isIE &&
+          <div style={{color: 'red'}}>
+          It seems you are using Internet Explorer. The game will work just fine. But consider changing browser, seriously.
+          </div>
+        }
         {/* WELCOME MESSAGE IF NO LOGIN */
           !this.props.username &&
           <div>

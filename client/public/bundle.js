@@ -28252,6 +28252,9 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	// Internet Explorer 6-11
+	var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
 	var App = exports.App = function (_Component) {
 	  _inherits(App, _Component);
 
@@ -28360,6 +28363,12 @@
 	          ),
 	          _react2.default.createElement(_Help.Help, null),
 	          _react2.default.createElement('br', null),
+	          /* IE NOTICE */
+	          isIE && _react2.default.createElement(
+	            'div',
+	            { style: { color: 'red' } },
+	            'It seems you are using Internet Explorer. The game will work just fine. But consider changing browser, seriously.'
+	          ),
 	          /* WELCOME MESSAGE IF NO LOGIN */
 	          !this.props.username && _react2.default.createElement(
 	            'div',
@@ -31848,7 +31857,8 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GameRoom).call(this, props));
 
 	    _this.keyLogic = function (e) {
-	      if (_this.props.arrow === e.code.split('').pop() && !_this.props.winner) {
+	      var character = String.fromCharCode(e.keyCode || e.charCode);
+	      if (_this.props.arrow === character && !_this.props.winner) {
 	        if (_this.state.distance >= finishLine) {
 	          _this.props.socket.emit('requestWinner', { room: _this.props.gameRoom, winner: _this.props.username });
 	          return;
