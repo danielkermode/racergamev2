@@ -56,6 +56,7 @@ export class GameRoom extends Component {
   }
 
   keyLogic = (e) => {
+    e = e || window.event;
     const character = String.fromCharCode(e.keyCode || e.charCode);
     if(this.props.arrow === character && !this.props.winner) {
       if(this.state.distance >= finishLine) {
