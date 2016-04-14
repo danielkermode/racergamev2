@@ -80,9 +80,9 @@ export class GameRoom extends Component {
           {this.props.car === 'yellow' && <span> (Playing alone)</span>}
         </div>
         {this.props.winner &&
-            <div className='animated jello'>
-              <h3>{this.props.winner} has won!</h3>
-            </div>
+          <div className='animated jello'>
+            <h3>{this.props.winner} has won!</h3>
+          </div>
         }
         {!this.props.arrow?
           <div>
