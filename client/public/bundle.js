@@ -31857,6 +31857,7 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GameRoom).call(this, props));
 
 	    _this.keyLogic = function (e) {
+	      e = e || window.event;
 	      var character = String.fromCharCode(e.keyCode || e.charCode);
 	      if (_this.props.arrow === character && !_this.props.winner) {
 	        if (_this.state.distance >= finishLine) {
