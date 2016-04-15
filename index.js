@@ -51,8 +51,14 @@ io.sockets.on('connection', function(socket) {
     }
     if(!data.challenger) {
       data.challenger = { cancel: true };
-      names[names.findIndex(val => val.id === socket.id)].inChallenge = undefined;
-      names[names.findIndex(val => val.name === data.challenged)].inChallenge = undefined;
+      const challengerInd = names[names.findIndex(val => val.id === socket.id)];
+      const challengedInd = names[names.findIndex(val => val.name === data.challenged)];
+      if(challengerInd) {
+        challengerInd.inChallenge = undefined;
+      }
+      if(challengedInd) {
+        challengedInd.inChallenge = undefined;
+      }
     }
     io.to(challenged.id).emit('challenged', data.challenger);
     io.emit('respondUsers', names);
@@ -61,8 +67,14 @@ io.sockets.on('connection', function(socket) {
   socket.on('meetChallenge', function(data) {
     const challenger = names.find(val => val.name === data.challenger);
     const challenged = names.find(val => val.name === data.challenged);
-    names[names.findIndex(val => val.name === data.challenger)].inChallenge = undefined;
-    names[names.findIndex(val => val.name === data.challenged)].inChallenge = undefined;
+    const challengerInd = names[names.findIndex(val => val.name === data.challenger)];
+    const challengedInd = names[names.findIndex(val => val.name === data.challenged)];
+    if(challengerInd) {
+      challengerInd.inChallenge = undefined;
+    }
+    if(challengedInd) {
+      challengedInd.inChallenge = undefined;
+    }
     io.emit('respondUsers', names);
     if(challenger) io.to(challenger.id).emit('challengeResponse', { answer: data.answer, challenged, challenger });
     socket.emit('challenged', false);
