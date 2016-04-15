@@ -24,7 +24,8 @@ export class GameRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      distance: 1
+      distance: 1,
+      clicked: false
     };
   }
 
@@ -39,6 +40,12 @@ export class GameRoom extends Component {
         window.__redCar__ = '/resources/redcar.png';
       }
     }
+  }
+
+  componentWillReceiveProps() {
+    //when a new key is received from the server, the player can click.
+    //this prevents rapid tapping sometimes moving the player forward 2 steps.
+    this.setState({ clicked: false });
   }
 
   componentWillUnmount() {
@@ -58,12 +65,12 @@ export class GameRoom extends Component {
   keyLogic = (e) => {
     e = e || window.event;
     const character = String.fromCharCode(e.keyCode || e.charCode);
-    if(this.props.arrow === character && !this.props.winner) {
+    if(this.props.arrow === character && !this.props.winner && !this.state.clicked) {
       if(this.state.distance >= finishLine) {
         this.props.socket.emit('requestWinner', { room: this.props.gameRoom, winner: this.props.username });
         return;
       }
-      this.setState({ distance: this.state.distance + speed });
+      this.setState({ distance: this.state.distance + speed, clicked: true });
       this.props.socket.emit('requestArrow', { room: this.props.gameRoom, distance: this.state.distance });
     }
   };

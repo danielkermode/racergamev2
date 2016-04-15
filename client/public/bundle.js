@@ -31859,18 +31859,19 @@
 	    _this.keyLogic = function (e) {
 	      e = e || window.event;
 	      var character = String.fromCharCode(e.keyCode || e.charCode);
-	      if (_this.props.arrow === character && !_this.props.winner) {
+	      if (_this.props.arrow === character && !_this.props.winner && !_this.state.clicked) {
 	        if (_this.state.distance >= finishLine) {
 	          _this.props.socket.emit('requestWinner', { room: _this.props.gameRoom, winner: _this.props.username });
 	          return;
 	        }
-	        _this.setState({ distance: _this.state.distance + speed });
+	        _this.setState({ distance: _this.state.distance + speed, clicked: true });
 	        _this.props.socket.emit('requestArrow', { room: _this.props.gameRoom, distance: _this.state.distance });
 	      }
 	    };
 
 	    _this.state = {
-	      distance: 1
+	      distance: 1,
+	      clicked: false
 	    };
 	    return _this;
 	  }
@@ -31888,6 +31889,11 @@
 	          window.__redCar__ = '/resources/redcar.png';
 	        }
 	      }
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps() {
+	      this.setState({ clicked: false });
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
