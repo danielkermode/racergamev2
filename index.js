@@ -15,7 +15,7 @@ let names = [];
 //recursively check names to avoid conflicts (underscore will be added for each duplicate)
 function checkName(names, name, id) {
   if(names.map(val => val.name).indexOf(name) > -1) {
-    checkName(names, name + '_', id);
+    return checkName(names, name + '_', id);
   } else {
     names.push({ name, id });
     return name;
@@ -35,8 +35,8 @@ io.sockets.on('connection', function(socket) {
   io.emit('userCount', users.length);
 
   socket.on('requestUsers', function(name) {
-    checkName(names, name, socket.id);
-    socket.emit('respondUsername', names[names.length-1].name);
+    const userName = checkName(names, name, socket.id);
+    socket.emit('respondUsername', userName);
     io.emit('respondUsers', names);
   });
 
