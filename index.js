@@ -35,8 +35,8 @@ io.sockets.on('connection', function(socket) {
   io.emit('userCount', users.length);
 
   socket.on('requestUsers', function(name) {
-    const userName = checkName(names, name, socket.id);
-    socket.emit('respondUsername', userName);
+    checkName(names, name, socket.id);
+    socket.emit('respondUsername', names[names.length-1].name);
     io.emit('respondUsers', names);
   });
 
