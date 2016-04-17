@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { loader } from './Loader';
-import io from 'socket.io-client';
 import { randLetter } from '../../utils';
 
 const speed = 5;

@@ -31821,10 +31821,6 @@
 
 	var _Loader = __webpack_require__(215);
 
-	var _socket = __webpack_require__(2);
-
-	var _socket2 = _interopRequireDefault(_socket);
-
 	var _utils = __webpack_require__(245);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -31893,6 +31889,8 @@
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps() {
+	      //when a new key is received from the server, the player can click.
+	      //this prevents rapid tapping sometimes moving the player forward 2 steps.
 	      this.setState({ clicked: false });
 	    }
 	  }, {

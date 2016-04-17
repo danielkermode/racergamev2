@@ -41,34 +41,33 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('challenge', function(data) {
-    const challenged = names.find(val => val.name === data.challenged);
-    const challenger = names.find(val => val.name === data.challenger);
     const challengerInd = names[names.findIndex(val => val.id === socket.id)];
     const challengedInd = names[names.findIndex(val => val.name === data.challenged)];
 
-    if(challenger) names[names.findIndex(val => val.name === data.challenger)].inChallenge = true;
-    if(challenged) names[names.findIndex(val => val.name === data.challenged)].inChallenge = true;
+    if(challengerInd) challengerInd.inChallenge = true;
+    if(challengedInd) challengedInd.inChallenge = true;
 
     if(!data.challenger) {
       data.challenger = { cancel: true };
       if(challengerInd) challengerInd.inChallenge = undefined;
       if(challengedInd) challengedInd.inChallenge = undefined;
     }
-
-    if(challenged) io.to(challenged.id).emit('challenged', data.challenger);
+    if(challengedInd) io.to(challengedInd.id).emit('challenged', data.challenger);
     io.emit('respondUsers', names);
   });
 
   socket.on('meetChallenge', function(data) {
-    const challenger = names.find(val => val.name === data.challenger);
-    const challenged = names.find(val => val.name === data.challenged);
     const challengerInd = names[names.findIndex(val => val.name === data.challenger)];
     const challengedInd = names[names.findIndex(val => val.name === data.challenged)];
 
     if(challengerInd) challengerInd.inChallenge = undefined;
     if(challengedInd) challengedInd.inChallenge = undefined;
     io.emit('respondUsers', names);
-    if(challenger) io.to(challenger.id).emit('challengeResponse', { answer: data.answer, challenged, challenger });
+    if(challengerInd) io.to(challengerInd.id).emit('challengeResponse', {
+      answer: data.answer,
+      challenged: challengedInd,
+      challenger: challengerInd
+    });
     socket.emit('challenged', false);
   });
 
