@@ -3,16 +3,29 @@
   "version": "1.0.0",
   "description": "racergame",
   "main": "entry.js",
+  "engines": {
+    "node": "4.2.3"
+  },
   "scripts": {
-    "start": "node entry.js",
+    "start": "node server.min.js",
     "dev": "nodemon --exec node entry.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "cbuild": "cd client && webpack --progress --profile --colors",
+    "test": "echo \"no test specified\"",
+    "build": "babel index.js -o server.js && minify server.js && del server.js",
+    "cbuild": "cd client && webpack --progress --profile --colors && cd public && minify bundle.js && del bundle.js && minify styles.css",
     "cdev": "cd client && webpack-dev-server --progress --profile --colors --hot --inline"
   },
   "author": "daniel kermode",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.10.2",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "react-modal": "^1.1.0",
+    "react-notification-system": "^0.2.7",
+    "socket.io": "^1.4.5",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.5.1",
     "babel-core": "^6.3.26",
@@ -23,22 +36,14 @@
     "babel-preset-react-hmre": "^1.1.0",
     "babel-preset-stage-0": "^6.3.13",
     "babel-register": "^6.5.1",
+    "minifier": "^0.7.1",
+    "nodemon": "^1.9.1",
+    "webpack-dev-server": "^1.14.1",
+    "webpack": "^1.12.15",
     "css-loader": "^0.23.1",
-    "express": "^4.10.2",
     "file-loader": "^0.8.5",
     "less-loader": "^2.2.3",
-    "react": "^0.14.3",
-    "react-dom": "^0.14.3",
-    "react-modal": "^1.1.0",
-    "react-notification-system": "^0.2.7",
-    "socket.io": "^1.4.5",
     "style-loader": "^0.13.1",
-    "url": "^0.11.0",
-    "url-loader": "^0.5.7",
-    "webpack": "^1.12.15"
-  },
-  "devDependencies": {
-    "nodemon": "^1.9.1",
-    "webpack-dev-server": "^1.14.1"
+    "url-loader": "^0.5.7"
   }
 }
