@@ -4,7 +4,6 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const url = require('url');
 
 //store state in a variable since this is a small app. If this was larger could use a database.
 let users = [];
