@@ -17,6 +17,7 @@
   "author": "daniel kermode",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.6.1",
     "express": "^4.10.2",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
