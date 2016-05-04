@@ -99,6 +99,10 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
+  socket.on('requestArrow', function() {
+    setTimeout(() => socket.emit('arrowResponse', true), 2000);
+  })
+
   socket.on('requestWinner', function(data) {
     //data will be the room, which we can just emit to giving both players the winner
     io.to(data.room).emit('winnerResponse', data.winner);
