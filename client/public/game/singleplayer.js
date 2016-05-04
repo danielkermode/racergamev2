@@ -9,6 +9,8 @@ function singleMain() {
     var bombArr = [];
     var starArr = [];
     var socket = window.parent.socket;
+    //emit the request for a game start
+    socket.emit('requestArrow');
 
     if(!socket) document.getElementById('notify').innerText = warnText;
     window.parent.scrollTo(0, window.parent.document.body.scrollHeight);
