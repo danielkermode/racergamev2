@@ -1,9 +1,8 @@
-var warnText = "No socket detected. The game must be played through a socket.io server to function properly."
-
 function singleMain() {
   if(!window.parent.__singlePlayer__) return;
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+    var warnText = "No socket detected. The game must be played through a socket.io server to function properly.";
     var gameGoing, scoreText;
     var score = 5000;
     var bombArr = [];

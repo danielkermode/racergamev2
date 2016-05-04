@@ -2,7 +2,8 @@ function multiMain() {
   if(!window.parent.__multiPlayer__) return;
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-    var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars;
+    var warnText = "No socket detected. The game must be played through a socket.io server to function properly.";
+    var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars, eScoreText;
     var score = 5000;
     var eScore = 5000;
     var bombArr = [];
@@ -40,11 +41,11 @@ function multiMain() {
     //enemy player has updated score
     socket.on('enemyScore', function(data) {
       eScore = data;
-      eScoreText.text = 'Enemy Score: ' + eScore;
+      if(eScoreText) eScoreText.text = 'Enemy Score: ' + data;
     });
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
-      if(document.hasFocus() && bombs && stars){
+      if(bombs && stars && document.hasFocus()){
         if(data.type === 'stars') {
           var star = stars.create(data.obj.x, data.obj.y, 'star');
           starArr.push(star);
@@ -53,22 +54,10 @@ function multiMain() {
           bombArr.push(bomb);
         }
       }
-      //check pause events
-      if(!document.hasFocus() && !paused) {
-        paused = true;
-        socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
-      }
-    });
-    //enemy has blurred
-    socket.on('enemyBlur', function() {
-      enemyPaused = true;
-    });
-    //enemy has refocused
-    socket.on('enemyFocus', function() {
-      enemyPaused = false;
     });
     //a winner has been selected
     socket.on('winnerResponse', function(data) {
+      document.getElementById('notify').innerText = '';
       if(data.winner !== window.parent.__userName__) {
         eScore = 0;
         socket.emit('playerScore', { score: score, room: window.parent.__gameRoom__ });
@@ -76,6 +65,7 @@ function multiMain() {
     })
 
     function preload() {
+      game.stage.disableVisibilityChange = true;
       game.load.image('redcar', '../resources/redcar.png');
       game.load.image('bluecar', '../resources/bluecar.png');
       game.load.image('road', '../resources/road.png');
@@ -160,7 +150,7 @@ function multiMain() {
     }
 
     function createRandomLine() {
-      if(gameGoing && !window.parent.__winner__) {
+      if(gameGoing && !window.parent.__winner__ && document.hasFocus()) {
         var diceRoll = Math.random();
         if(diceRoll > 0.5) {
           var bomb = bombs.create(getRandomInt(playerPos.leftbounds, playerPos.rightbounds), 400, 'bomb');
@@ -208,11 +198,14 @@ function multiMain() {
     }
 
     function update() {
-      if(score > 0 && gameGoing && !window.parent.__winner__) {
-        if(document.hasFocus() && paused) {
-          paused = false;
-          socket.emit('playerFocus', { room: window.parent.__gameRoom__ });
-        }
+      //check focus
+      if(!document.hasFocus() && !document.getElementById('notify').innerText && !window.parent.__winner__) {
+        document.getElementById('notify').innerText = 'You lost focus. Click on the game to continue.';
+      } else if(document.hasFocus() && document.getElementById('notify').innerText) {
+        document.getElementById('notify').innerText = '';
+      }
+
+      if(score > 0 && gameGoing && !window.parent.__winner__ && document.hasFocus()) {
         //check bomb collision
         checkArr(bombArr, hitBomb, player, true);
         checkArr(bombArr, hitBomb, enemy, false);
@@ -222,17 +215,7 @@ function multiMain() {
         //decrement score
         score -= 1;
         scoreText.text = 'Your Score: ' + score;
-        if (eScore > 1 && !enemyPaused) {
-          eScore -= 1;
-          eScoreText.text = 'Enemy Score: ' + eScore;
-          if(document.getElementById('notify').innerText) {
-            document.getElementById('notify').innerText = '';
-          }
-        } else if(enemyPaused) {
-          if(!document.getElementById('notify').innerText) {
-            document.getElementById('notify').innerText = 'Other player has paused.';
-          }
-        }
+        socket.emit('playerScore', { score: score, room: window.parent.__gameRoom__ });
         //scroll bg
         road.tilePosition.y -= 8;
 
@@ -251,7 +234,7 @@ function multiMain() {
             room: window.parent.__gameRoom__
           });
         }
-      } else if(score <= 0) {
+      } else if(score <= 0 && !window.parent.__winner__) {
         socket.emit('requestWinner', { winner: window.parent.__userName__, room: window.parent.__gameRoom__ });
       }
     }

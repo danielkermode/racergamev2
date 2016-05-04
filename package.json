@@ -11,7 +11,7 @@
     "dev": "nodemon --exec node entry.js",
     "test": "echo \"no test specified\"",
     "build": "babel index.js -o server.js && minify server.js && del server.js",
-    "cbuild": "cd client && webpack --progress --profile --colors && cd public && minify bundle.js && del bundle.js && minify styles.css",
+    "cbuild": "cd client && webpack --progress --profile --colors && cd public && minify bundle.js && del bundle.js && minify styles.css && minify --output game/gameBundle1.min.js ../gamesrc/singleplayer.js && minify --output game/gameBundle2.min.js ../gamesrc/multiplayer.js && cd game && type gameBundle1.min.js gameBundle2.min.js > gameBundle.min.js  && del gameBundle1.min.js && del gameBundle2.min.js",
     "cdev": "cd client && webpack-dev-server --progress --profile --colors --hot --inline"
   },
   "author": "daniel kermode",
