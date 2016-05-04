@@ -40,6 +40,7 @@ function multiMain() {
     //enemy player has updated score
     socket.on('enemyScore', function(data) {
       eScore = data;
+      eScoreText.text = 'Enemy Score: ' + eScore;
     });
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
@@ -54,7 +55,6 @@ function multiMain() {
       }
       //check pause events
       if(!document.hasFocus() && !paused) {
-        console.log('pausing')
         paused = true;
         socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
       }
@@ -210,7 +210,6 @@ function multiMain() {
     function update() {
       if(score > 0 && gameGoing && !window.parent.__winner__) {
         if(document.hasFocus() && paused) {
-          console.log('unpausing')
           paused = false;
           socket.emit('playerFocus', { room: window.parent.__gameRoom__ });
         }
@@ -226,6 +225,13 @@ function multiMain() {
         if (eScore > 1 && !enemyPaused) {
           eScore -= 1;
           eScoreText.text = 'Enemy Score: ' + eScore;
+          if(document.getElementById('notify').innerText) {
+            document.getElementById('notify').innerText = '';
+          }
+        } else if(enemyPaused) {
+          if(!document.getElementById('notify').innerText) {
+            document.getElementById('notify').innerText = 'Other player has paused.';
+          }
         }
         //scroll bg
         road.tilePosition.y -= 8;
