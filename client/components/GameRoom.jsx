@@ -48,7 +48,7 @@ export class GameRoom extends Component {
         }
         {!this.props.arrow?
           <div>
-            Game will start in two seconds... Get ready!
+            Game will start shortly... Get ready!
             {loader()}
           </div> :
           <div>
