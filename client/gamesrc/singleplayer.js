@@ -99,7 +99,7 @@ function singleMain() {
     function checkArr(arr, func) {
       arr.forEach(function(thing, ind, arr) {
         if(thing.body) {
-          thing.body.y -= 8;
+          thing.body.y -= 7;
           if(checkOverlap(player, thing)) {
             func(player, thing);
           } else if(thing.body.y < -50) {
@@ -135,7 +135,7 @@ function singleMain() {
         scoreText.text = 'Distance Remaining: ' + score;
 
         //scroll bg
-        road.tilePosition.y -= 8;
+        road.tilePosition.y -= 7;
 
         //left and right movement
         if (cursors.left.isDown && player.x > 20) {

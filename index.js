@@ -111,11 +111,6 @@ io.sockets.on('connection', function(socket) {
     socket.broadcast.to(data.room).emit('enemyPos', data.x);
   });
 
-  socket.on('playerCollide', function(data) {
-    //emit to all OTHER sockets in the room (player position)
-    socket.broadcast.to(data.room).emit('enemyCollide', data.x);
-  });
-
   socket.on('playerScore', function(data) {
     //emit to all OTHER sockets in the room (player score)
     socket.broadcast.to(data.room).emit('enemyScore', data.score);

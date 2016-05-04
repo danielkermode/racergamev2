@@ -3,7 +3,7 @@ function multiMain() {
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
     var warnText = "No socket detected. The game must be played through a socket.io server to function properly.";
-    var gameGoing, scoreText, host, player, enemy, bombs, stars, eScoreText;
+    var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars, eScoreText;
     var score = 5000;
     var eScore = 5000;
     var gameSpeed = 6;
@@ -17,8 +17,8 @@ function multiMain() {
 
     //depending on whether host is true, the following vars will be set giving client (default) settings
     var players = [
-      { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460 },
-      { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460 }
+    { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460, bounce: -500 },
+    { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460, bounce: 500 }
     ]
     var playerPos = host? players[0] : players[1];
     var enemyPos = host? players[1] : players[0];
@@ -35,13 +35,7 @@ function multiMain() {
     //enemy player has updated coods
     socket.on('enemyPos', function(data) {
       if(enemy) {
-        enemy.body.velocity.x = data;
-      }
-    });
-    //a collision has ocurred
-    socket.on('enemyCollide', function(data) {
-      if(player) {
-        player.body.velocity.x = data;
+        enemy.x = data;
       }
     });
     //enemy player has updated score
@@ -91,12 +85,10 @@ function multiMain() {
       player = game.add.sprite(playerPos.x, playerPos.y, playerPos.car);
       game.physics.arcade.enable(player);
       player.body.collideWorldBounds = true;
-      player.body.bounce.x = 0.95;
       //enemy
       enemy = game.add.sprite(enemyPos.x, enemyPos.y, enemyPos.car);
       game.physics.arcade.enable(enemy);
       enemy.body.collideWorldBounds = true;
-      enemy.body.bounce.x = 0.95;
       //movement keys
       cursors = game.input.keyboard.createCursorKeys();
       //bombs
@@ -205,12 +197,16 @@ function multiMain() {
       emitter.start(true, 500, null, 10);
     }
 
-    function collisionHandler (obj1, obj2) {
-      socket.emit('playerCollide', { x: obj2.body.velocity.x, room: window.parent.__gameRoom__ });
-    }
-
     function update() {
-      game.physics.arcade.collide(player, enemy, collisionHandler, null, this);
+      //check car collision
+      if(checkOverlap(player, enemy)) {
+        player.body.velocity.x = playerPos.bounce;
+        enemy.body.velocity.x = enemyPos.bounce;
+        setTimeout(function() {
+          player.body.velocity.x = 0;
+          enemy.body.velocity.x = 0;
+        }, 100);
+      }
       //check focus
       if(!document.hasFocus() && !document.getElementById('notify').innerText && !window.parent.__winner__) {
         document.getElementById('notify').innerText = 'You lost focus. Click on the game to continue.';
@@ -233,17 +229,17 @@ function multiMain() {
         road.tilePosition.y -= gameSpeed;
 
         //left and right movement
-        if (cursors.left.isDown && player.x > playerPos.leftbounds) {
-          player.body.velocity.x -= 20;
+        if (cursors.left.isDown && player.x > playerPos.leftbounds && !checkOverlap(player, enemy)) {
+          player.body.x -= 20;
           //emit pos
           socket.emit('playerPos', {
-            x: player.body.velocity.x,
+            x: player.x,
             room: window.parent.__gameRoom__
           });
-        } else if (cursors.right.isDown && player.x < playerPos.rightbounds) {
-          player.body.velocity.x += 20;
+        } else if (cursors.right.isDown && player.x < playerPos.rightbounds && !checkOverlap(player, enemy)) {
+          player.body.x += 20;
           socket.emit('playerPos', {
-            x: player.body.velocity.x,
+            x: player.x,
             room: window.parent.__gameRoom__
           });
         }
