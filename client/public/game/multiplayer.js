@@ -155,7 +155,7 @@ function multiMain() {
     function createRandomLine() {
       if(gameGoing && !window.parent.__winner__) {
         var diceRoll = Math.random();
-        if(diceRoll > 0.3) {
+        if(diceRoll > 0.5) {
           var bomb = bombs.create(getRandomInt(playerPos.leftbounds, playerPos.rightbounds), 400, 'bomb');
           bombArr.push(bomb);
           emitObject({ x: bomb.x, y: bomb.y }, 'bombs');
