@@ -33,7 +33,6 @@ function multiMain() {
     //enemy player has updated coods
     socket.on('enemyPos', function(data) {
       if(enemy) {
-        if(!gameGoing) gameGoing = true;
         enemy.x = data.x;
         enemy.y = data.y;
       }
@@ -45,7 +44,6 @@ function multiMain() {
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
       if(document.hasFocus() && bombs && stars){
-        if(!gameGoing) gameGoing = true;
         if(data.type === 'stars') {
           var star = stars.create(data.obj.x, data.obj.y, 'star');
           starArr.push(star);
@@ -69,6 +67,13 @@ function multiMain() {
     socket.on('enemyFocus', function() {
       enemyPaused = false;
     });
+    //a winner has been selected
+    socket.on('winnerResponse', function(data) {
+      if(data.winner !== window.parent.__userName__) {
+        eScore = 0;
+        socket.emit('playerScore', { score: score, room: window.parent.__gameRoom__ });
+      }
+    })
 
     function preload() {
       game.load.image('redcar', '../resources/redcar.png');
