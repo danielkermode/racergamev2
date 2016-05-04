@@ -25,13 +25,13 @@ function multiMain() {
     window.parent.scrollTo(0, window.parent.document.body.scrollHeight);
 
     //socket reactions-arrowResponse is game start
-      socket.on('arrowResponse', function(data) {
-      console.log('hi there')
+    socket.on('arrowResponse', function(data) {
       gameGoing = true;
     });
     //enemy player has updated coods
     socket.on('enemyPos', function(data) {
       if(enemy) {
+        if(!gameGoing) gameGoing = true;
         enemy.x = data.x;
         enemy.y = data.y;
       }
@@ -43,6 +43,7 @@ function multiMain() {
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
       if(document.hasFocus() && bombs && stars){
+        if(!gameGoing) gameGoing = true;
         if(data.type === 'stars') {
           var star = stars.create(data.obj.x, data.obj.y, 'star');
           starArr.push(star);
@@ -50,6 +51,12 @@ function multiMain() {
           var bomb = bombs.create(data.obj.x, data.obj.y, 'bomb');
           bombArr.push(bomb);
         }
+      }
+      //check pause events
+      if(!document.hasFocus() && !paused) {
+        console.log('pausing')
+        paused = true;
+        socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
       }
     });
     //enemy has blurred
@@ -195,11 +202,8 @@ function multiMain() {
 
     function update() {
       if(score > 0 && gameGoing && !window.parent.__winner__) {
-        //check pause events
-        if(!document.hasFocus() && !paused) {
-          paused = true;
-          socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
-        } else if(document.hasFocus() && paused) {
+        if(document.hasFocus() && paused) {
+          console.log('unpausing')
           paused = false;
           socket.emit('playerFocus', { room: window.parent.__gameRoom__ });
         }
