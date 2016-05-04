@@ -2,49 +2,18 @@ import React, { Component, PropTypes } from 'react';
 import { loader } from './Loader';
 import { randLetter } from '../../utils';
 
-const speed = 5;
-const finishLine = 83;
-const roadStyle = {
-  backgroundImage: 'url("/resources/road.png")',
-  backgroundRepeat: 'repeat-x'
-};
-
-const roadLineStyle = {
-  backgroundImage: 'url("/resources/roadline.png")',
-  backgroundRepeat: 'repeat-x',
-  backgroundSize: '100%'
-};
-
 export class GameRoom extends Component {
   static propTypes = {
 
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      distance: 1,
-      clicked: false
-    };
-  }
-
   componentDidMount() {
-    document.addEventListener('keydown', this.keyLogic);
-    if(!window.__blueCar__ && !window.__redCar__) {
-      if(this.props.car === 'yellow') {
-        window.__yellowCar__ = '/resources/yellowcar.png';
-        this.forceUpdate();
-      } else if(this.props.car === 'red' || this.props.car === 'blue') {
-        window.__blueCar__ = '/resources/bluecar.png';
-        window.__redCar__ = '/resources/redcar.png';
-      }
+    document.getElementById('gameiframe').focus();
+    if(this.props.car === 'yellow') window.__singlePlayer__ = true;
+    else if(this.props.car === 'red' || this.props.car === 'blue') {
+      window.__multiPlayer__ = true;
+      window.__car__ = this.props.car;
     }
-  }
-
-  componentWillReceiveProps() {
-    //when a new key is received from the server, the player can click.
-    //this prevents rapid tapping sometimes moving the player forward 2 steps.
-    this.setState({ clicked: false });
   }
 
   componentWillUnmount() {
@@ -52,34 +21,20 @@ export class GameRoom extends Component {
     //otherwise the component doesn't unmount properly.
     //window vars look ugly don't they. Storing state in the window actually proved to be fine.
     //Not very scalable, of course, but it kept things easier logic wise.
-    document.removeEventListener('keydown', this.keyLogic);
     window.__errer__ = undefined;
-    window.__blueCar__ = undefined;
-    window.__redCar__ = undefined;
-    window.__yellowCar__ = undefined;
+    window.__singlePlayer__ = undefined;
+    window.__multiPlayer__ = undefined;
+    window.__car__ = undefined;
     window.__arrow__ = undefined;
     window.__challengeResponse__ = undefined;
   }
-
-  keyLogic = (e) => {
-    e = e || window.event;
-    const character = String.fromCharCode(e.keyCode || e.charCode);
-    if(this.props.arrow === character && !this.props.winner && !this.state.clicked) {
-      if(this.state.distance >= finishLine) {
-        this.props.socket.emit('requestWinner', { room: this.props.gameRoom, winner: this.props.username });
-        return;
-      }
-      this.setState({ distance: this.state.distance + speed, clicked: true });
-      this.props.socket.emit('requestArrow', { room: this.props.gameRoom, distance: this.state.distance });
-    }
-  };
 
   render() {
     this.props.socket.on('someoneLeft', function(data) {
       window.__errer__ = 'It seems your opponent has left the room.';
     });
     return (
-      <div onKeyDown={this.keyLogic}>
+      <div>
         {window.__errer__ && <div style={{color: 'red'}}>{window.__errer__}</div>}
         <div>
           You are the <b>{this.props.car}</b> car.
@@ -96,33 +51,10 @@ export class GameRoom extends Component {
             {loader()}
           </div> :
           <div>
-          {this.props.arrow.length === 1? <span>Hit the "{this.props.arrow}" key!</span> :
-          <span>{this.props.arrow}</span>}
           </div>
         }
         <hr/>
-        {window.__yellowCar__ &&
-        <div className='row' style={roadStyle}>
-          <img src={window.__yellowCar__} alt='yellowcar'
-          style={{ marginLeft: this.state.distance + '%' }} className='img-responsive' />
-        </div>}
-        {window.__blueCar__ &&
-        <div>
-          <div className='row' style={roadStyle}>
-            <img src={window.__blueCar__} alt='bluecar'
-            style={{ marginLeft: this.props.car === 'blue'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
-            className='img-responsive' />
-          </div>
-          <div className='row' style={roadLineStyle}>
-            <img className='roadline' src={'/resources/roadline.png'} />
-          </div>
-        </div>}
-        {window.__redCar__ &&
-        <div className='row' style={roadStyle}>
-          <img src={window.__redCar__} alt='redcar'
-          style={{ marginLeft: this.props.car === 'red'? this.state.distance + '%' : this.props.enemyDistance + '%' }}
-          className='img-responsive' />
-        </div>}
+        <iframe id='gameiframe' height='540px' width='840px' src='game/index.html'></iframe>
       </div>
     );
   }

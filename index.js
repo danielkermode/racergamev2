@@ -1,4 +1,3 @@
-import { randLetter } from './utils';
 //this method was easier (took it from socket.io docs) even though it's not es6
 const express = require('express');
 const app = express();
@@ -26,6 +25,12 @@ app.use(compress());
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/client/public/index.html');
+  //apparently needed for compression to affect server-sent events
+  res.flush();
+});
+
+app.get('/phaser', function(req, res){
+  res.sendFile(__dirname + '/client/phaser/index.html');
   //apparently needed for compression to affect server-sent events
   res.flush();
 });
@@ -85,7 +90,8 @@ io.sockets.on('connection', function(socket) {
         if(sockRooms.indexOf(data.challenger) <= -1) {
           io.to(current.id).emit('roomResponse', data.challenger);
           curSocket.join(data.challenger);
-          setTimeout(() => curSocket.emit('arrowResponse', randLetter()), 2000);
+          //2 seconds until game start
+          setTimeout(() => curSocket.emit('arrowResponse', true), 2000);
           names = names.filter(val => val.id !== curSocket.id);
           io.emit('respondUsers', names);
         }
@@ -93,16 +99,29 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
-  socket.on('requestArrow', function(data) {
-    //data will be the room, which we can just emit to giving both players a letter
-    io.to(data.room).emit('arrowResponse', randLetter());
-    //emit enemy distance
-    socket.broadcast.to(data.room).emit('enemyDistance', data.distance);
+  socket.on('requestWinner', function(data) {
+    //data will be the room, which we can just emit to giving both players the winner
+    io.to(data.room).emit('winnerResponse', data.winner);
   });
 
-  socket.on('requestWinner', function(data) {
-    //data will be the room, which we can just emit to giving both players a letter
-    io.to(data.room).emit('winnerResponse', data.winner);
+  socket.on('playerPos', function(data) {
+    //emit to all OTHER sockets in the room (player position)
+    socket.broadcast.to(data.room).emit('enemyPos', data.pos);
+  });
+
+  socket.on('playerScore', function(data) {
+    //emit to all OTHER sockets in the room (player score)
+    socket.broadcast.to(data.room).emit('enemyScore', data.score);
+  });
+
+  socket.on('playerObj', function(data) {
+    //emit to all OTHER sockets in the room (new object)
+    socket.broadcast.to(data.room).emit('enemyObj', { obj: data.obj, type: data.type });
+  });
+
+  socket.on('playerBlur', function(data) {
+    //emit to all OTHER sockets in the room (if player blurs)
+    socket.broadcast.to(data.room).emit('enemyBlur');
   });
 
   socket.on('leaveGame', function(data) {

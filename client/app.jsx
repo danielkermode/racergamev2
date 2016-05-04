@@ -174,8 +174,7 @@ export class App extends Component {
         <div>
           <button className='btn btn-default' onClick={this.goToLobby}>Back to Lobby</button>
           <GameRoom arrow={this.props.arrow} gameRoom={this.props.gameRoom} winner={this.props.winner}
-          car={this.state.car} socket={this.props.socket} username={this.props.username}
-          enemyDistance={this.props.enemyDistance}/>
+          car={this.state.car} socket={this.props.socket} username={this.props.username}/>
         </div>
       }
     </div>
