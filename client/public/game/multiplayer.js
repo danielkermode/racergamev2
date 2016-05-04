@@ -13,8 +13,8 @@ function multiMain() {
 
     //depending on whether host is true, the following vars will be set giving client (default) settings
     var players = [
-    { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 320, scorex: 20, scorey: 460 },
-    { x: 600, y: 10, car: 'redcar', leftbounds: 325, rightbounds: 625, scorex: 400, scorey: 460 }
+    { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460 },
+    { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460 }
     ]
     var playerPos = host? players[0] : players[1];
     var enemyPos = host? players[1] : players[0];
@@ -26,6 +26,7 @@ function multiMain() {
 
     //socket reactions-arrowResponse is game start
       socket.on('arrowResponse', function(data) {
+      console.log('hi there')
       gameGoing = true;
     });
     //enemy player has updated coods
@@ -112,7 +113,7 @@ function multiMain() {
       return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    function hitBomb (person, bomb, adjScore) {
+    function hitBomb(person, bomb, adjScore) {
       //Removes the bomb
       bomb.destroy();
       particleBurst(bomb, bombEmitter);
@@ -124,7 +125,7 @@ function multiMain() {
       }
     }
 
-    function hitStar (person, star, adjScore) {
+    function hitStar(person, star, adjScore) {
       //Removes the star
       star.destroy();
       particleBurst(star, starEmitter);
