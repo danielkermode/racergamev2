@@ -41,7 +41,7 @@ function multiMain() {
     //enemy player has updated score
     socket.on('enemyScore', function(data) {
       eScore = data;
-      if(eScoreText) eScoreText.text = 'Enemy Score: ' + data;
+      if(eScoreText) eScoreText.text = 'Enemy Distance Remaining: ' + data;
     });
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
@@ -105,9 +105,9 @@ function multiMain() {
       //hud
       game.add.tileSprite(0, 450, 800, 100, 'hud');
       //score
-      scoreText = game.add.text(playerPos.scorex, playerPos.scorey, 'Your Score: ' + score, { fontSize: '32px', fill: '#000' });
+      scoreText = game.add.text(playerPos.scorex, playerPos.scorey, 'Distance Remaining: ' + score, { fontSize: '32px', fill: '#000' });
       //enemy score
-      eScoreText = game.add.text(enemyPos.scorex, enemyPos.scorey, 'Enemy Score: ' + eScore, { fontSize: '32px', fill: '#000' });
+      eScoreText = game.add.text(enemyPos.scorex, enemyPos.scorey, 'Enemy Distance Remaining: ' + eScore, { fontSize: '32px', fill: '#000' });
       //start the random bombs/stars
       var timeout = getRandomInt(600, 800);
       game.time.events.loop(timeout, createRandomLine, this);
@@ -214,7 +214,7 @@ function multiMain() {
         checkArr(starArr, hitStar, enemy, false);
         //decrement score
         score -= 1;
-        scoreText.text = 'Your Score: ' + score;
+        scoreText.text = 'Distance Remaining: ' + score;
         socket.emit('playerScore', { score: score, room: window.parent.__gameRoom__ });
         //scroll bg
         road.tilePosition.y -= 8;

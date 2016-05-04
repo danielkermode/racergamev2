@@ -132,7 +132,7 @@ function singleMain() {
         checkArr(starArr, hitStar);
         //decrement score
         score -= 1;
-        scoreText.text = 'Score: ' + score;
+        scoreText.text = 'Distance Remaining: ' + score;
 
         //scroll bg
         road.tilePosition.y -= 8;
