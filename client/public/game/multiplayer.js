@@ -8,6 +8,8 @@ function multiMain() {
     var bombArr = [];
     var starArr = [];
     var socket = window.parent.socket;
+    //emit the request for a game start
+    socket.emit('requestArrow');
     //set host if car is blue (the player who sent the challenge)
     if(window.parent.__car__ === 'blue') host = true;
 

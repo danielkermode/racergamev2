@@ -90,8 +90,6 @@ io.sockets.on('connection', function(socket) {
         if(sockRooms.indexOf(data.challenger) <= -1) {
           io.to(current.id).emit('roomResponse', data.challenger);
           curSocket.join(data.challenger);
-          //2 seconds until game start
-          setTimeout(() => curSocket.emit('arrowResponse', true), 2000);
           names = names.filter(val => val.id !== curSocket.id);
           io.emit('respondUsers', names);
         }

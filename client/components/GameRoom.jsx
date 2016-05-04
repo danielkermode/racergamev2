@@ -15,7 +15,6 @@ export class GameRoom extends Component {
       window.__multiPlayer__ = true;
       window.__car__ = this.props.car;
     }
-    this.props.socket.emit('requestArrow');
   }
 
   componentWillUnmount() {
