@@ -124,6 +124,11 @@ io.sockets.on('connection', function(socket) {
     socket.broadcast.to(data.room).emit('enemyBlur');
   });
 
+  socket.on('playerFocus', function(data) {
+    //emit to all OTHER sockets in the room (if player blurs)
+    socket.broadcast.to(data.room).emit('enemyFocus');
+  });
+
   socket.on('leaveGame', function(data) {
     socket.leave(data);
     io.to(data).emit('someoneLeft');

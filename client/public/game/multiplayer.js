@@ -2,7 +2,7 @@ function multiMain() {
   if(!window.parent.__multiPlayer__) return;
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-    var gameGoing, scoreText, host, enemy, enemyPaused;
+    var gameGoing, scoreText, host, enemy, enemyPaused, paused;
     var score = 5000;
     var eScore = 5000;
     var bombArr = [];
@@ -55,10 +55,10 @@ function multiMain() {
     socket.on('enemyBlur', function() {
       enemyPaused = true;
     });
-    //add event listener for onblur
-    document.addEventListener('blur', function() {
-      socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
-    }, true);
+    //enemy has refocused
+    socket.on('enemyFocus', function() {
+      enemyPaused = false;
+    });
 
     function preload() {
       game.load.image('redcar', '../resources/redcar.png');
@@ -194,6 +194,14 @@ function multiMain() {
 
     function update() {
       if(score > 0 && gameGoing && !window.parent.__winner__) {
+        //check pause events
+        if(!document.hasFocus() && !paused) {
+          paused = true;
+          socket.emit('playerBlur', { room: window.parent.__gameRoom__ });
+        } else if(document.hasFocus() && paused) {
+          paused = false;
+          socket.emit('playerFocus', { room: window.parent.__gameRoom__ });
+        }
         //check bomb collision
         checkArr(bombArr, hitBomb, player, true);
         checkArr(bombArr, hitBomb, enemy, false);
@@ -203,8 +211,10 @@ function multiMain() {
         //decrement score
         score -= 1;
         scoreText.text = 'Your Score: ' + score;
-        if (eScore > 1 && !enemyPaused) eScore -= 1;
-        eScoreText.text = 'Enemy Score: ' + eScore;
+        if (eScore > 1 && !enemyPaused) {
+          eScore -= 1;
+          eScoreText.text = 'Enemy Score: ' + eScore;
+        }
         //scroll bg
         road.tilePosition.y -= 8;
 

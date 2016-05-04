@@ -8,7 +8,8 @@ export class GameRoom extends Component {
   };
 
   componentDidMount() {
-    document.getElementById('gameiframe').focus();
+    var iframe  = document.getElementById('gameiframe');
+    iframe.focus();
     if(this.props.car === 'yellow') window.__singlePlayer__ = true;
     else if(this.props.car === 'red' || this.props.car === 'blue') {
       window.__multiPlayer__ = true;
