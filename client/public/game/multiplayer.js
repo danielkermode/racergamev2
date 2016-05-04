@@ -2,7 +2,7 @@ function multiMain() {
   if(!window.parent.__multiPlayer__) return;
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-    var gameGoing, scoreText, host, enemy, enemyPaused, paused;
+    var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars;
     var score = 5000;
     var eScore = 5000;
     var bombArr = [];
@@ -41,7 +41,7 @@ function multiMain() {
     });
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
-      if(document.hasFocus()){
+      if(document.hasFocus() && bombs && stars){
         if(data.type === 'stars') {
           var star = stars.create(data.obj.x, data.obj.y, 'star');
           starArr.push(star);
