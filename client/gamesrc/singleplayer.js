@@ -52,7 +52,7 @@ function singleMain() {
       //hud
       game.add.tileSprite(0, 450, 800, 100, 'hud');
       //score
-      scoreText = game.add.text(20, 460, 'Score: ' + score, { fontSize: '32px', fill: '#000' });
+      scoreText = game.add.text(20, 460, 'Distance Remaining: ' + score, { fontSize: '20px', fill: '#000' });
       //start the random bombs/stars
       var timeout = getRandomInt(600, 800);
       game.time.events.loop(timeout, createRandomLine, this);

@@ -6,6 +6,7 @@ function multiMain() {
     var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars, eScoreText;
     var score = 5000;
     var eScore = 5000;
+    var gameSpeed = 6;
     var bombArr = [];
     var starArr = [];
     var socket = window.parent.socket;
@@ -105,9 +106,9 @@ function multiMain() {
       //hud
       game.add.tileSprite(0, 450, 800, 100, 'hud');
       //score
-      scoreText = game.add.text(playerPos.scorex, playerPos.scorey, 'Distance Remaining: ' + score, { fontSize: '32px', fill: '#000' });
+      scoreText = game.add.text(playerPos.scorex, playerPos.scorey, 'Distance Remaining: ' + score, { fontSize: '20px', fill: '#000' });
       //enemy score
-      eScoreText = game.add.text(enemyPos.scorex, enemyPos.scorey, 'Enemy Distance Remaining: ' + eScore, { fontSize: '32px', fill: '#000' });
+      eScoreText = game.add.text(enemyPos.scorex, enemyPos.scorey, 'Enemy Distance Remaining: ' + eScore, { fontSize: '20px', fill: '#000' });
       //start the random bombs/stars
       var timeout = getRandomInt(600, 800);
       game.time.events.loop(timeout, createRandomLine, this);
@@ -172,7 +173,7 @@ function multiMain() {
     function checkArr(arr, func, person, adjScore) {
       arr.forEach(function(thing, ind, arr) {
         if(thing.body) {
-          thing.body.y -= 8;
+          thing.body.y -= gameSpeed;
           if(checkOverlap(person, thing)) {
             func(player, thing, adjScore);
           } else if(thing.body.y < -50) {
@@ -217,7 +218,7 @@ function multiMain() {
         scoreText.text = 'Distance Remaining: ' + score;
         socket.emit('playerScore', { score: score, room: window.parent.__gameRoom__ });
         //scroll bg
-        road.tilePosition.y -= 8;
+        road.tilePosition.y -= gameSpeed;
 
         //left and right movement
         if (cursors.left.isDown && player.x > playerPos.leftbounds) {
