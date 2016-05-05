@@ -19,7 +19,7 @@ function multiMain() {
     //depending on whether host is true, the following vars will be set giving client (default) settings
     var players = [
       { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460, bounce: -500 },
-      { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460, bounce: 500 }
+      { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 680, scorex: 400, scorey: 460, bounce: 500 }
     ]
     var playerPos = host? players[0] : players[1];
     var enemyPos = host? players[1] : players[0];
