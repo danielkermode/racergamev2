@@ -7,6 +7,7 @@ function multiMain() {
     var score = 5000;
     var eScore = 5000;
     var gameSpeed = 6;
+    var easiness = 0.5;
     var bombArr = [];
     var starArr = [];
     var socket = window.parent.socket;
@@ -17,8 +18,8 @@ function multiMain() {
 
     //depending on whether host is true, the following vars will be set giving client (default) settings
     var players = [
-    { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460, bounce: -500 },
-    { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460, bounce: 500 }
+      { x: 300, y: 10, car: 'bluecar', leftbounds: 20, rightbounds: 360, scorex: 20, scorey: 460, bounce: -500 },
+      { x: 600, y: 10, car: 'redcar', leftbounds: 355, rightbounds: 625, scorex: 400, scorey: 460, bounce: 500 }
     ]
     var playerPos = host? players[0] : players[1];
     var enemyPos = host? players[1] : players[0];
@@ -152,7 +153,7 @@ function multiMain() {
     function createRandomLine() {
       if(gameGoing && !window.parent.__winner__ && document.hasFocus()) {
         var diceRoll = Math.random();
-        if(diceRoll > 0.5) {
+        if(diceRoll > easiness) {
           var bomb = bombs.create(getRandomInt(playerPos.leftbounds, playerPos.rightbounds), 400, 'bomb');
           bombArr.push(bomb);
           emitObject({ x: bomb.x, y: bomb.y }, 'bombs');

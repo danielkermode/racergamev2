@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { loader } from './Loader';
-import { randLetter } from '../../utils';
 
 export class GameRoom extends Component {
   static propTypes = {

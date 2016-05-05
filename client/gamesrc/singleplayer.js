@@ -5,6 +5,8 @@ function singleMain() {
     var warnText = "No socket detected. The game must be played through a socket.io server to function properly.";
     var gameGoing, scoreText;
     var score = 5000;
+    var gameSpeed = 8;
+    var easiness = 0.3;
     var bombArr = [];
     var starArr = [];
     var socket = window.parent.socket;
@@ -86,11 +88,11 @@ function singleMain() {
     function createRandomLine() {
       if(gameGoing && !window.parent.__winner__) {
         var diceRoll = Math.random();
-        if(diceRoll > 0.3) {
-          var bomb = bombs.create(getRandomInt(30, 720/2), 400, 'bomb');
+        if(diceRoll > easiness) {
+          var bomb = bombs.create(getRandomInt(30, 360), 400, 'bomb');
           bombArr.push(bomb);
         } else {
-          var star = stars.create(getRandomInt(30, 720/2), 400, 'star');
+          var star = stars.create(getRandomInt(30, 360), 400, 'star');
           starArr.push(star);
         }
       }
@@ -99,7 +101,7 @@ function singleMain() {
     function checkArr(arr, func) {
       arr.forEach(function(thing, ind, arr) {
         if(thing.body) {
-          thing.body.y -= 7;
+          thing.body.y -= gameSpeed;
           if(checkOverlap(player, thing)) {
             func(player, thing);
           } else if(thing.body.y < -50) {
@@ -135,7 +137,7 @@ function singleMain() {
         scoreText.text = 'Distance Remaining: ' + score;
 
         //scroll bg
-        road.tilePosition.y -= 7;
+        road.tilePosition.y -= gameSpeed;
 
         //left and right movement
         if (cursors.left.isDown && player.x > 20) {
