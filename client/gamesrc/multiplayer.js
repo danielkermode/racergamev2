@@ -46,7 +46,7 @@ function multiMain() {
     });
     //update enemy objects as they appear
     socket.on('enemyObj', function(data) {
-      if(bombs && stars && document.hasFocus()){
+      if(bombs && stars && document.hasFocus()) {
         if(data.type === 'stars') {
           var star = stars.create(data.obj.x, data.obj.y, 'star');
           starArr.push(star);

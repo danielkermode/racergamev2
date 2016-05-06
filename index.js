@@ -29,12 +29,6 @@ app.get('/', function(req, res){
   res.flush();
 });
 
-app.get('/phaser', function(req, res){
-  res.sendFile(__dirname + '/client/phaser/index.html');
-  //apparently needed for compression to affect server-sent events
-  res.flush();
-});
-
 //public dir served statically
 app.use(express.static('client/public'));
 
