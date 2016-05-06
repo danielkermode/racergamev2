@@ -3,7 +3,7 @@ function multiMain() {
   window.onload = function() {
     var game = new Phaser.Game(800, 512, Phaser.AUTO, '', { preload: preload, create: create, update: update });
     var warnText = "No socket detected. The game must be played through a socket.io server to function properly.";
-    var gameGoing, scoreText, host, enemy, enemyPaused, paused, bombs, stars, eScoreText;
+    var gameGoing, scoreText, host, enemy, bombs, stars, eScoreText;
     var score = 5000;
     var eScore = 5000;
     var gameSpeed = 6;
